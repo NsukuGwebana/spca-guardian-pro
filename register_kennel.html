@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register Kennel</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    color: #134f5c;
+}
+
+.overlay {
+    background: rgba(19, 79, 92, 0.85);
+    min-height: 100vh;
+    padding: 30px 0;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #134f5c;
+}
+
+form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #134f5c;
+    text-align: left;
+}
+
+form input, form select, form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #134f5c;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 1rem;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.btn {
+    display: inline-block;
+    background: #134f5c;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background: #0f3f4a;
+}
+
+.reset-btn {
+    background: #60a5b3;
+    margin-left: 10px;
+}
+
+.reset-btn:hover {
+    background: #3d8a95;
+}
+
+.back-btn {
+    display: block;
+    width: fit-content;
+    background: #60a5b3;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 20px auto 0;
+    text-align: center;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    background: #3d8a95;
+}
+
+.kennel-image {
+    width: 150px;
+    height: auto;
+    margin: 0 auto 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+</style>
+</head>
+<body>
+<div class="overlay">
+<div class="container">
+    <h2>Register New Kennel</h2>
+
+    <form method="POST" action="register_kennel.php">
+        <label for="kennel_name">Kennel Name:</label>
+        <input type="text" id="kennel_name" name="kennel_name" required>
+
+        <label for="max_width">Maximum Width (meters):</label>
+        <input type="number" id="max_width" name="max_width" step="0.01" min="0.1" required value="1.0">
+
+        <label for="max_height">Maximum Height (meters):</label>
+        <input type="number" id="max_height" name="max_height" step="0.01" min="0.1" required value="1.0">
+
+        <label for="species_compatibility">Species Compatibility:</label>
+        <select id="species_compatibility" name="species_compatibility" required>
+            <option value="General">General (All Species)</option>
+            <option value="Dog">Dog</option>
+            <option value="Cat">Cat</option>
+            <option value="Bird">Bird</option>
+            <option value="Rabbit">Rabbit</option>
+            <option value="Emergency">Emergency Cell</option>
+        </select>
+
+        <label for="kennel_type">Kennel Type:</label>
+        <select id="kennel_type" name="kennel_type" required>
+            <option value="Standard">Standard</option>
+            <option value="Large">Large</option>
+            <option value="Outdoor">Outdoor</option>
+            <option value="Indoor">Indoor</option>
+            <option value="Quarantine">Quarantine</option>
+            <option value="Emergency">Emergency</option>
+        </select>
+
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="Available">Available</option>
+            <option value="Occupied">Occupied</option>
+            <option value="Maintenance">Under Maintenance</option>
+        </select>
+
+        <label for="notes">Additional Notes:</label>
+        <textarea id="notes" name="notes"></textarea>
+
+        <button type="submit" class="btn">Register Kennel</button>
+        <button type="reset" class="btn reset-btn">Reset Form</button>
+    </form>
+
+    <button class="back-btn" onclick="window.location.href=' admin dashboard.php'">⬅ Back to Dashboard</button>
+</div>
+</div>
+</body>
+</html>

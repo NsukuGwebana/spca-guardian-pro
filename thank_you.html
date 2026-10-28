@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You!</title>
+    <style>
+        /* --- CSS from your Volunteer Registration Status page --- */
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed; /* Using the same background image */
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.85); /* Using the same overlay color */
+            min-height: 100vh;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* This is the container for the thank you message. 
+           It uses similar styling to your 'status-box' but is tailored for the thank you page. */
+        .thank-you-container {
+            background: rgba(255,255,255,0.1); /* Slightly transparent white background */
+            border-radius: 12px;
+            padding: 30px; /* Increased padding for more space */
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #e0f7fa; /* Light cyan color for heading */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px; /* Space below the paragraph */
+        }
+
+        .back-link {
+            background: #60a5fa; /* Blue button color */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s ease; /* Smooth hover effect */
+            display: inline-block; /* Allows padding and margin */
+        }
+        
+        .back-link:hover {
+            background: #3b82f6; /* Darker blue on hover */
+        }
+
+        /* If you had error messages on the thank you page, you could use this */
+        .error-message {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="thank-you-container">
+            <h1>🎉 Thank You for Subscribing!</h1>
+            <p>You have been successfully added to our mailing list. You'll receive the latest updates directly in your inbox.</p>
+            <a href="Homepage.html" class="back-link">Go Back to the Homepage</a>
+        </div>
+    </div>
+</body>
+</html>

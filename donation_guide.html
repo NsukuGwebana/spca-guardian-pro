@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Info - SPCA Guardian Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reuse the same consistent styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f4f8fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(to right, #0d3b47, #134f5c);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .step-card i {
+            font-size: 2.5rem;
+            color: #1abc9c;
+            margin-bottom: 15px;
+        }
+
+        .step-card h3 {
+            color: #134f5c;
+            margin-bottom: 10px;
+        }
+
+        .step-card p {
+            color: #555;
+            font-size: 1rem;
+        }
+
+        .info-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .info-section h2 {
+            color: #134f5c;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .info-section p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 25px;
+            color:极速 #555;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #1abc9c;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #16a085;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 50px 20px 20px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #1abc9c;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: #60a5fa;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .social-icons a:hover {
+            background: #60a5fa;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .footer-contact-info .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .footer-contact-info .info-icon {
+            font-size: 1rem;
+            color: #ecf0f1;
+            margin-top: 4px;
+            min-width: 20px;
+        }
+        
+        /* Opening Hours Specific Styles */
+        .opening-hours {
+            margin-top: 5px;
+        }
+        
+        .opening-hours div {
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            max-width: 220px;
+        }
+        
+        .opening-hours .days {
+            font-weight: 500;
+        }
+        
+        .opening-hours .times {
+            color: #ecf0f1;
+        }
+
+        @media (max-width: 768px) {
+            .steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .footer-column {
+                text-align: center;
+            }
+            
+            .footer-column ul li {
+                justify-content: center;
+            }
+            
+            .opening-hours div {
+                margin: 0 auto;
+                justify-content: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="javascript:history.back()" class="back-button"><i class="fas fa-arrow-left"></i></a>
+        <div class="container">
+            <h1>Support Our Mission</h1>
+            <p>Your donation helps us rescue, treat, and rehome animals in need. Every contribution creates a second chance.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="steps">
+            <div class="step-card">
+                <i class="fas fa-bone"></i>
+                <h3>Feed a Hungry Pet</h3>
+                <p>Your donation provides meals and clean water to animals waiting for their forever homes.</p>
+            </div>
+
+            <div class="step-card">
+                <i class="fas fa-syringe"></i>
+                <h3>Medical Care</h3>
+                <p>Help us cover vaccinations, emergency treatments, and sterilization programs to keep animals healthy.</p>
+            </div>
+
+            <div class="step-card">
+                <i class="fas fa-dog"></i>
+                <h3>Rescue Operations</h3>
+                <p>Your support funds transport, rescues, and shelter for abused or abandoned animals.</p>
+            </div>
+
+            <div class="step-card">
+                <i class="fas fa-heart"></i>
+                <h3>Give Love & Hope</h3>
+                <p>Every donation gives a scared animal the chance to feel safe, cared for, and loved again.</p>
+            </div>
+        </div>
+
+        <div class极速="info-section">
+            <h2>Make a Difference Today</h2>
+            <p>We rely on your kindness to continue our life-saving work. No matter how big or small, your contribution transforms lives and keeps tails wagging.</p>
+            <a href="AddDonations2.html" class="btn"><i class="fas fa-hand-holding-heart"></i> Donate Now</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>SPCA Guardian Pro</h3>
+                <p>We are dedicated to rescuing, rehabilitating, and rehoming animals in need.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.twitter.com"><i class="fab fa-twitter"></i></a>
+                    <a href="https://wa.me/27768560086" class="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="adoption_form.php"> Adopt a Pet</a></li>
+                     <li><a href="foster.php"></i> Foster a Pet</a></li>
+                    <li><a href="WaysToHelp.html"> Ways to Help</a></li>
+                    <li><a href="about_us.html"> About Us</a></li>
+                    <li><a href="publicguide.pdf"></i> Help</a></li>
+                </ul>
+            </div>
+            <div class="footer-column footer-contact-info">
+                <h3>Contact Info</h3>
+                <div class="info-item">
+                    <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
+                    <span>Old Bay Road, Makhanda 6139, South Africa</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon"><i class="fas fa-phone-alt"></i></span>
+                    <span>+27 76 856 0086</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon"><i class="fas fa-envelope"></i></span>
+                    <span>spcaguardianpro@gmail.com</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon"><i class="fas fa-clock"></i></span>
+                    <div class="opening-hours">
+                        <div><span class="days">Mon-Fri:</span> <span class="times">9am - 4pm</span></div>
+                        <div><span class="days">Saturday:</span> <span class="times">9am - 12pm</span></div>
+                        <div><span class="days">Sunday:</span> <span class极速="times">9am - 11am</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 SPCA Guardian Pro. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

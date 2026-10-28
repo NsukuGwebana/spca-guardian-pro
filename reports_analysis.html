@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cruelty Reports and Investigations Analysis</title>
+    
+    <!-- Load Google Charts Library -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.90);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #e0f7fa;
+        }
+
+        .filter-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #60a5fa;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background-color: #60a5fa;
+        }
+
+        .btn-primary:hover {
+            background-color: #3b82f6;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .chart {
+            width: 100%;
+            height: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .back-btn {
+            display: block;
+            width: fit-content;
+            background: #60a5fa;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #3b82f6;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="overlay">
+    <h1>Cruelty Reports and Investigations Analysis</h1>
+    
+    <!-- Filter Form -->
+    <div class="filter-form">
+        <h2>Filter Reports</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+            
+            <div class="form-group">
+                <label for="locationFilter">Location:</label>
+                <select id="locationFilter">
+                    <option value="">All Locations</option>
+                    <option value="Location 1">Location 1</option>
+                    <option value="Location 2">Location 2</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-buttons">
+            <button type="button" onclick="fetchDataAndDrawCharts()" class="btn btn-primary">Apply Filters</button>
+        </div>
+    </div>
+    
+    <!-- Chart Containers -->
+    <div class="chart-container">
+        <h2>Analysis by Animal Type</h2>
+        <div id="animal_chart" class="chart"></div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Analysis by Cruelty Type</h2>
+        <div id="cruelty_chart" class="chart"></div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Analysis by Case Status</h2>
+        <div id="case_status_chart" class="chart"></div>
+    </div>
+
+    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+</div>
+
+<script type="text/javascript">
+    // Load the necessary chart packages (corechart and bar)
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+
+    // Callback function to draw the charts once Google Charts is loaded
+    google.charts.setOnLoadCallback(fetchDataAndDrawCharts);
+
+    function fetchDataAndDrawCharts() {
+        // Get filter values
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        var location = document.getElementById('locationFilter').value;
+        
+        // Build query string with filters
+        var queryParams = [];
+        if (startDate) queryParams.push('start_date=' + startDate);
+        if (endDate) queryParams.push('end_date=' + endDate);
+        if (location) queryParams.push('location=' + location);
+        
+        var queryString = queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+        
+        // Fetch data from the server
+        fetch('get_report_data.php' + queryString)
+            .then(response => response.json())
+            .then(data => {
+                drawCharts(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    function drawCharts(data) {
+        // Animal Data Chart
+        var animalData = google.visualization.arrayToDataTable([
+            ['Animal Type', 'Number of Reports'],
+            ...data.animal_data
+        ]);
+
+        var animalOptions = {
+            title: 'Cruelty Reports by Animal Type',
+            hAxis: {
+                title: 'Number of Reports',
+                viewWindow: {min: 0},
+                gridlines: {
+                    color: 'transparent'
+                },
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                // Ensure consistent scaling
+                ticks: getOptimalTicks(animalData, 1)
+            },
+            vAxis: {
+                title: 'Animal Type',
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                gridlines: {
+                    color: '#eee'
+                }
+            },
+            bars: 'horizontal',
+            colors: ['#1abc9c'],
+            titleTextStyle: {color: '#333'},
+            legend: {textStyle: {color: '#333'}},
+            chartArea: {
+                width: '70%',
+                height: '80%'
+            }
+        };
+
+        var animalChart = new google.visualization.BarChart(document.getElementById('animal_chart'));
+        animalChart.draw(animalData, animalOptions);
+
+        // Cruelty Data Chart
+        var crueltyData = google.visualization.arrayToDataTable([
+            ['Cruelty Type', 'Number of Reports'],
+            ...data.cruelty_data
+        ]);
+
+        var crueltyOptions = {
+            title: 'Cruelty Reports by Type',
+            hAxis: {
+                title: 'Number of Reports',
+                viewWindow: {min: 0},
+                gridlines: {
+                    color: 'transparent'
+                },
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                // Ensure consistent scaling
+                ticks: getOptimalTicks(crueltyData, 1)
+            },
+            vAxis: {
+                title: 'Cruelty Type',
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                gridlines: {
+                    color: '#eee'
+                }
+            },
+            bars: 'horizontal',
+            colors: ['#e67e22'],
+            titleTextStyle: {color: '#333'},
+            legend: {textStyle: {color: '#333'}},
+            chartArea: {
+                width: '70%',
+                height: '80%'
+            }
+        };
+
+        var crueltyChart = new google.visualization.BarChart(document.getElementById('cruelty_chart'));
+        crueltyChart.draw(crueltyData, crueltyOptions);
+
+        // Case Status Chart
+        var caseStatusData = google.visualization.arrayToDataTable([
+            ['Case Status', 'Number of Investigations'],
+            ...data.case_status_data
+        ]);
+
+        var caseStatusOptions = {
+            title: 'Investigation Case Status',
+            hAxis: {
+                title: 'Number of Investigations',
+                viewWindow: {min: 0},
+                gridlines: {
+                    color: 'transparent'
+                },
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                // Ensure consistent scaling
+                ticks: getOptimalTicks(caseStatusData, 1)
+            },
+            vAxis: {
+                title: 'Case Status',
+                textStyle: {color: '#333'},
+                titleTextStyle: {color: '#333'},
+                gridlines: {
+                    color: '#eee'
+                }
+            },
+            bars: 'horizontal',
+            colors: ['#3498db'],
+            titleTextStyle: {color: '#333'},
+            legend: {textStyle: {color: '#333'}},
+            chartArea: {
+                width: '70%',
+                height: '80%'
+            }
+        };
+
+        var caseStatusChart = new google.visualization.BarChart(document.getElementById('case_status_chart'));
+        caseStatusChart.draw(caseStatusData, caseStatusOptions);
+    }
+    
+    // Helper function to generate optimal tick marks for consistent scaling
+    function getOptimalTicks(dataTable, columnIndex) {
+        // Get the maximum value in the data column
+        var maxValue = 0;
+        for (var i = 0; i < dataTable.getNumberOfRows(); i++) {
+            var value = dataTable.getValue(i, columnIndex);
+            if (value > maxValue) maxValue = value;
+        }
+        
+        // Calculate optimal tick interval (round up to nearest 1, 2, or 5)
+        var tickInterval = 1;
+        if (maxValue > 20) {
+            tickInterval = 5;
+        } else if (maxValue > 10) {
+            tickInterval = 2;
+        }
+        
+        // Generate tick values
+        var ticks = [];
+        for (var i = 0; i <= maxValue + tickInterval; i += tickInterval) {
+            ticks.push(i);
+        }
+        
+        return ticks;
+    }
+</script>
+</body>
+</html>

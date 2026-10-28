@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Management </title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #134f5c;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.85);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 25px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #134f5c;
+        }
+        
+        h1 {
+            color: #134f5c;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #60a5b3;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .events-list {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        .event-form {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #134f5c;
+            color: #134f5c;
+        }
+        
+        .event-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #134f5c;
+        }
+        
+        .event-title {
+            font-size: 1.4rem;
+            color: #134f5c;
+            margin-bottom: 10px;
+        }
+        
+        .event-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .event-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .event-description {
+            color: #34495e;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #134f5c;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #134f5c;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            background: #eaf6f9;
+            border-color: #50a1b3;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #134f5c;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: 48%;
+            margin-right: 4%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #0f3f4a;
+        }
+
+        .reset-btn {
+            background: #60a5b3;
+            margin-right: 0;
+        }
+
+        .reset-btn:hover {
+            background: #3d8a95;
+        }
+
+        .back-btn {
+            display: block;
+            width: fit-content;
+            background: #60a5b3;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 20px auto 0;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: #3d8a95;
+        }
+
+        .date-time {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .date-time {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <header>
+                <h1>Events Management </h1>
+             
+            </header>
+            
+            <div class="content">
+                <div class="events-list">
+                    <h2 class="section-title">Upcoming Events</h2>
+                    
+                    <!-- Example Event Cards -->
+                    <div class="event-card">
+                        <h3 class="event-title">Animal Shelter Cleanup Day</h3>
+                        <div class="event-details">
+                            <div class="event-detail">
+                                <span class="detail-label">Date</span>
+                                <span class="detail-value">2025-09-16</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Time</span>
+                                <span class="detail-value">09:00:00</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Location</span>
+                                <span class="detail-value">Main Animal Shelter</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Volunteers Needed</span>
+                                <span class="detail-value">20</span>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Join us for a day of cleaning and organizing the animal shelter to provide a better environment for our furry friends.
+                        </p>
+                    </div>
+                    
+                    <div class="event-card">
+                        <h3 class="event-title">Pet Adoption Fair</h3>
+                        <div class="event-details">
+                            <div class="event-detail">
+                                <span class="detail-label">Date</span>
+                                <span class="detail-value">2025-09-23</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Time</span>
+                                <span class="detail-value">11:00:00</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Location</span>
+                                <span class="detail-value">City Park</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Volunteers Needed</span>
+                                <span class="detail-value">30</span>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Help us find forever homes for our lovely animals. This event brings together potential adopters and our rescued pets.
+                        </p>
+                    </div>
+                    
+                    <div class="event-card">
+                        <h3 class="event-title">Fundraising Gala</h3>
+                        <div class="event-details">
+                            <div class="event-detail">
+                                <span class="detail-label">Date</span>
+                                <span class="detail-value">2025-09-08</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Time</span>
+                                <span class="detail-value">18:30:00</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Location</span>
+                                <span class="detail-value">Grand Hotel</span>
+                            </div>
+                            <div class="event-detail">
+                                <span class="detail-label">Volunteers Needed</span>
+                                <span class="detail-value">50</span>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Annual fundraising gala to support our animal shelter operations. Join us for an evening of dinner, auctions, and entertainment.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="event-form">
+                    <h2 class="section-title">Add New Event</h2>
+                    <form id="eventForm" action="addEvent.php" method="POST">
+                        <div class="form-group">
+                            <label for="event_name">Event Name</label>
+                            <input type="text" id="event_name" name="event_name" required>
+                        </div>
+                        
+                        <div class="form-group date-time">
+                            <div>
+                                <label for="event_date">Event Date</label>
+                                <input type="date" id="event_date" name="event_date" required>
+                            </div>
+                            <div>
+                                <label for="event_time">Event Time</label>
+                                <input type="time" id="event_time" name="event_time" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="max_volunteers">Maximum Volunteers</label>
+                            <input type="number" id="max_volunteers" name="max_volunteers" min="1" required>
+                        </div>
+                        
+                        <button type="submit" class="btn">Add Event</button>
+                        <button type="reset" class="btn reset-btn">Reset Form</button>
+                    </form>
+                    
+                   <button class="back-btn" onclick="history.back()">Back</button>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

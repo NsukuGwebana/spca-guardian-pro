@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f0f7ff; } /* Light Blue Background */
+    header { background: #1e3a5f; color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; }
+    .container { display: flex; flex-wrap: wrap; }
+    nav { width: 200px; background: #e3f2fd; padding: 15px; box-sizing: border-box; }
+    nav a { display: block; padding: 8px; margin-bottom: 5px; color: #0d47a1; text-decoration: none; border-radius: 5px; }
+    nav a:hover { background: #bbdefb; color: #1565c0; }
+    main { flex: 1; padding: 20px; box-sizing: border-box; }
+    .card { background: #ffffff; padding: 15px; margin-bottom: 15px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e1f5fe; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #bbdefb; padding: 8px; text-align: left; }
+    th { background: #e3f2fd; color: #0d47a1; }
+
+    /* Notification dropdown */
+    #notifDropdown { display: none; position: absolute; right: 20px; top: 60px; width: 250px; background: #ffffff; border: 1px solid #90caf9; border-radius: 5px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    #notifDropdown ul { list-style: none; margin: 0; padding: 10px; }
+    #notifDropdown li { padding: 8px; border-bottom: 1px solid #f0f4f7; }
+    #notifDropdown li:last-child { border-bottom: none; }
+    #notifBtn { background: #1976d2; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+    #notifBtn:hover { background: #1565c0; }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      nav { width: 100%; }
+      main { flex: 1 100%; }
+      .container { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Admin Dashboard</h1>
+    <button id="notifBtn">🔔 Notifications (3)</button>
+  </header>
+
+  <!-- Notification Dropdown -->
+  <div id="notifDropdown">
+    <ul id="notificationList">
+      <!-- Notifications will be dynamically inserted here -->
+    </ul>
+  </div>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <nav>
+      <a href="#">Dashboard</a>
+      <a href="#">Animals</a>
+      <a href="#">Adoptions</a>
+      <a href="#">Cruelty Reports</a>
+      <a href="#">Medical</a>
+      <a href="#">Donations</a>
+      <a href="#">Volunteers</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+      <div class="card">
+        <h2>Quick Stats</h2>
+        <p>Total Animals: <b>128</b></p>
+        <p>Pending Adoptions: <b>15</b></p>
+        <p>New Reports: <b>3</b></p>
+      </div>
+
+      <div class="card">
+        <h2>Recent Activity</h2>
+        <table id="activityTable">
+          <tr>
+            <th>Type</th>
+            <th>Details</th>
+            <th>Date</th>
+          </tr>
+          <!-- Recent activities will be populated by JavaScript -->
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Function to fetch notifications from the database (simulation)
+    function fetchNotifications() {
+      // Example data (you would fetch this from your backend)
+      const notifications = [
+        { type: "🐾", message: "New cruelty report filed for Dog #123", date: "2025-08-25" },
+        { type: "💉", message: "Vaccination due for Cat #45", date: "2025-08-24" },
+        { type: "🎉", message: "Donation received: R500", date: "2025-08-23" }
+      ];
+
+      const notificationList = document.getElementById('notificationList');
+      notificationList.innerHTML = '';  // Clear existing notifications
+      notifications.forEach((notif) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${notif.type} ${notif.message} (${notif.date})`;
+        notificationList.appendChild(listItem);
+      });
+    }
+
+    // Function to fetch recent activity (simulation)
+    function fetchRecentActivity() {
+      const activities = [
+        { type: "Cruelty Report", details: "Dog rescued near Market St.", date: "2025-08-25" },
+        { type: "Donation", details: "R1000 from John D.", date: "2025-08-24" },
+        { type: "Adoption", details: "Cat #45 adopted by Sarah K.", date: "2025-08-23" }
+      ];
+
+      const activityTable = document.getElementById('activityTable');
+      activities.forEach((activity) => {
+        const row = activityTable.insertRow();
+        const cell1 = row.insertCell(0);
+        const cell2 = row.insertCell(1);
+        const cell3 = row.insertCell(2);
+        cell1.textContent = activity.type;
+        cell2.textContent = activity.details;
+        cell3.textContent = activity.date;
+      });
+    }
+
+    // Show/Hide notification dropdown
+    document.getElementById("notifBtn").addEventListener("click", function() {
+      const dropdown = document.getElementById("notifDropdown");
+      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    });
+
+    // Fetch initial data on page load
+    window.onload = function() {
+      fetchNotifications();
+      fetchRecentActivity();
+    };
+  </script>
+
+</body>
+</html>
+

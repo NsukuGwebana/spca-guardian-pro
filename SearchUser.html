@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Registered Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.90);
+            min-height: 100vh;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #e0f7fa;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #e0f7fa;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #60a5fa;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #60a5fa;
+        }
+
+        .btn-primary:hover {
+            background-color: #3b82f6;
+        }
+
+        .back-btn {
+            display: block;
+            width: fit-content;
+            background: #60a5fa;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #3b82f6;
+        }
+
+        @media (max-width: 600px) {
+            .search-container {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="search-container">
+            <h2>Search Registered Users</h2>
+            <form action="SearchUser.php" method="POST">
+                <div class="form-group">
+                    <label for="search_type">Search Field</label>
+                    <select id="search_type" name="search_type" required>
+                        <option value="">Select Search Field</option>
+                        <option value="idnumber">ID Number</option>
+                        <option value="surname">Surname</option>
+                        <option value="firstname">First Name</option>
+                        <option value="userrole">User Role</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search_term">Search Term</label>
+                    <input type="search" id="search_term" name="search_term" placeholder="Enter search term" required>
+                </div>
+                
+                <button type="submit" name="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+        
+        <a href="admin dashboard.php" class="back-btn"> Back to Dashboard</a>
+    </div>
+</body>
+</html>

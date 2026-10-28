@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cruelty Investigation</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 20px;
+        color: #134f5c;
+    }
+
+    .overlay {
+        background: rgba(19, 79, 92, 0.85);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .container {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #134f5c;
+    }
+
+    form label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #134f5c;
+    }
+
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #134f5c;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 1rem;
+    }
+
+    form textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .btn {
+        display: inline-block;
+        background: #134f5c;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-right: 10px;
+    }
+
+    .btn:hover {
+        background: #0f3f4a;
+    }
+
+    .back-btn {
+        background: #60a5b3;
+    }
+
+    .back-btn:hover {
+        background: #3d8a95;
+    }
+
+    .section-title {
+        font-weight: bold;
+        color: #134f5c;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+</style>
+</head>
+<body>
+<div class="overlay">
+<div class="container">
+    <h2>Cruelty Investigation</h2>
+    <form action="save_investigation.php" method="POST">
+        
+        <div class="section-title">Investigator Details</div>
+        <label for="investigator">Investigator Name:</label>
+        <input type="text" name="investigator" id="investigator" required>
+
+        <div class="section-title">Case Information</div>
+        <label for="status">Case Status:</label>
+        <select name="status" id="status" required>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+        </select>
+
+        <label for="actions">Actions Taken:</label>
+        <textarea name="actions" id="actions" rows="4" placeholder="Describe steps taken..."></textarea>
+
+        <label for="follow_up">Follow-up Required:</label>
+        <select name="follow_up" id="follow_up">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+        </select>
+
+        <label for="notes">Investigation Notes:</label>
+        <textarea name="notes" id="notes" rows="5" placeholder="Additional details..."></textarea>
+
+        <button type="submit" class="btn">Save Investigation</button>
+        <a href="view_reports.php" class="btn back-btn">Back to Reports</a>
+    </form>
+</div>
+</div>
+</body>
+</html>

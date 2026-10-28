@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to Sysdev</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #134f5c;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.85);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: auto;
+            padding: 25px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #134f5c;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #134f5c;
+        }
+
+        form input, form select, form textarea {
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #134f5c;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #134f5c;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn:hover {
+            background: #0f3f4a;
+        }
+        
+        /* Specific styles for login form links/buttons */
+        .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #134f5c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay">
+    <div class="container">
+        <h2>LOGIN FORM</h2>
+        <form action="2login2Sysdev.php" method="POST">
+            <label for="username">USER NAME:</label>
+            <input type="text" id="username" name="username" maxlength="35" size="20" required><br><br>
+
+            <label for="userpassword">PASSWORD:</label>
+            <input type="password" id="userpassword" name="userpassword" maxlength="35" size="20" required><br><br>
+            
+            <input type="submit" value="LOGIN" class="btn">
+        </form>
+        <a href="ForgotPasswordform.html" class="login-link">Forgot your password</a>
+    </div>
+</div>
+
+</body>
+</html>

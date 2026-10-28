@@ -1,0 +1,17 @@
+# Real credentials: copy config.example.php to config.php locally
+config.php
+
+# User uploads (animal photos, ID copies) - private, never commit
+uploads/*
+!uploads/.gitkeep
+!uploads/id_copy/
+uploads/id_copy/*
+!uploads/id_copy/.gitkeep
+!uploads/id_copies/
+uploads/id_copies/*
+!uploads/id_copies/.gitkeep
+
+# OS and editor files
+Thumbs.db
+.DS_Store
+.vscode/

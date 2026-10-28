@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register Animal</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 20px;
+        color: #134f5c;
+    }
+
+    .overlay {
+        background: rgba(19, 79, 92, 0.85);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .container {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #134f5c;
+    }
+
+    form label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #134f5c;
+    }
+
+    form input, form select, form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #134f5c;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 1rem;
+    }
+
+    .btn {
+        display: inline-block;
+        background: #134f5c;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-right: 10px;
+    }
+
+    .btn:hover {
+        background: #0f3f4a;
+    }
+
+    .back-btn {
+        background: #60a5b3;
+    }
+
+    .back-btn:hover {
+        background: #3d8a95;
+    }
+
+    .section-title {
+        font-weight: bold;
+        color: #134f5c;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+
+    #photoPreview {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    #previewImage {
+        border-radius: 8px;
+        border: 1px solid #134f5c;
+        max-width: 100%;
+    }
+
+    .status-note {
+        font-style: italic;
+        padding: 5px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .status-available {
+        color: green;
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+
+    .status-unavailable {
+        color: red;
+        background-color: rgba(255, 0, 0, 0.1);
+    }
+
+    .radio-group {
+        margin-bottom: 16px;
+    }
+
+    .radio-group label {
+        display: inline;
+        font-weight: normal;
+        margin-right: 15px;
+    }
+
+    .radio-group input[type="radio"] {
+        width: auto;
+        margin-right: 5px;
+    }
+</style>
+<script>
+// Breed data for different species
+const breedData = {
+    "Dog": ["Labrador Retriever", "German Shepherd", "Golden Retriever", "Bulldog", "Beagle", "Poodle", "Siberian Husky", "Boxer", "Dachshund", "Other"],
+    "Cat": ["Siamese", "Persian", "Maine Coon", "Bengal", "Sphynx", "British Shorthair", "Ragdoll", "Scottish Fold", "American Shorthair", "Other"],
+    "Bird": ["Parakeet", "Cockatiel", "Lovebird", "Canary", "Finch", "Parrot", "Cockatoo", "Macaw", "African Grey", "Other"],
+    "Rabbit": ["Holland Lop", "Flemish Giant", "Mini Rex", "Netherland Dwarf", "Lionhead", "Angora", "Californian", "Dutch", "New Zealand", "Other"],
+    "Other": ["Other"]
+};
+
+function toggleSpeciesInput() {
+    var speciesSelect = document.getElementById("Species");
+    var otherInput = document.getElementById("otherSpecies");
+    otherInput.style.display = speciesSelect.value === "Other" ? "block" : "none";
+    
+    if (speciesSelect.value !== "Other") {
+        document.getElementById("OtherSpecies").value = "";
+    }
+}
+
+function updateBreeds() {
+    var speciesSelect = document.getElementById("Species");
+    var breedSelect = document.getElementById("Breed");
+    var otherBreedDiv = document.getElementById("otherBreed");
+    var selectedSpecies = speciesSelect.value;
+    
+    breedSelect.innerHTML = '';
+    otherBreedDiv.style.display = 'none';
+    
+    if (selectedSpecies && breedData[selectedSpecies]) {
+        breedData[selectedSpecies].forEach(function(breed) {
+            var option = document.createElement("option");
+            option.value = breed;
+            option.textContent = breed;
+            breedSelect.appendChild(option);
+        });
+        breedSelect.disabled = false;
+    } else {
+        breedSelect.disabled = true;
+    }
+    
+    toggleSpeciesInput();
+}
+
+function toggleBreedInput() {
+    var breedSelect = document.getElementById("Breed");
+    var otherBreedDiv = document.getElementById("otherBreed");
+    otherBreedDiv.style.display = breedSelect.value === "Other" ? "block" : "none";
+    
+    if (breedSelect.value !== "Other") {
+        document.getElementById("OtherBreed").value = "";
+    }
+}
+
+function previewPhoto(event) {
+    var input = event.target;
+    var preview = document.getElementById('photoPreview');
+    var previewImg = document.getElementById('previewImage');
+    
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            preview.style.display = 'block';
+            previewImg.src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.style.display = 'none';
+        previewImg.src = '';
+    }
+}
+
+function updateStatusBasedOnHealth() {
+    var healthStatus = document.getElementById("Health_status").value;
+    var statusField = document.getElementById("status");
+    var statusNote = document.getElementById("statusNote");
+    var statusNoteUnhealthy = document.getElementById("statusNoteUnhealthy");
+
+    if (healthStatus === "Healthy" || healthStatus === "") {
+        // Default to Available if nothing selected
+        statusField.value = "Available";
+        statusNote.style.display = "block";
+        statusNoteUnhealthy.style.display = "none";
+    } else if (healthStatus === "Unhealthy") {
+        statusField.value = "Not Available";
+        statusNote.style.display = "none";
+        statusNoteUnhealthy.style.display = "block";
+    }
+
+    console.log("Status field updated:", statusField.value);
+}
+
+function toggleKennelSelection() {
+    var manualSelect = document.getElementById("manual_allocate").checked;
+    var kennelSelection = document.getElementById("kennel_selection");
+    
+    if (manualSelect) {
+        kennelSelection.style.display = "block";
+        loadAvailableKennels();
+    } else {
+        kennelSelection.style.display = "none";
+    }
+}
+
+function loadAvailableKennels() {
+    var kennelSelect = document.getElementById("kennel_id");
+    var species = document.getElementById("Species").value;
+    var width = document.querySelector('input[name="width"]').value;
+    var height = document.querySelector('input[name="height"]').value;
+    
+    kennelSelect.innerHTML = '<option value="">Loading available kennels...</option>';
+    
+    fetch('get_available_kennels.php?species=' + species + '&width=' + width + '&height=' + height)
+        .then(response => response.json())
+        .then(data => {
+            kennelSelect.innerHTML = '';
+            if (data.length === 0) {
+                kennelSelect.innerHTML = '<option value="">No suitable kennels available</option>';
+                return;
+            }
+            data.forEach(kennel => {
+                var option = document.createElement("option");
+                option.value = kennel.kennel_id;
+                option.textContent = kennel.kennel_name + ' (' + kennel.max_width + 'm × ' + kennel.max_height + 'm) - ' + kennel.status;
+                kennelSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading kennels:', error);
+            kennelSelect.innerHTML = '<option value="">Error loading kennels</option>';
+        });
+}
+
+document.querySelector('input[name="width"]').addEventListener('change', function() {
+    if (document.getElementById("manual_allocate").checked) {
+        loadAvailableKennels();
+    }
+});
+
+document.querySelector('input[name="height"]').addEventListener('change', function() {
+    if (document.getElementById("manual_allocate").checked) {
+        loadAvailableKennels();
+    }
+});
+
+document.getElementById("Species").addEventListener('change', function() {
+    if (document.getElementById("manual_allocate").checked) {
+        loadAvailableKennels();
+    }
+});
+
+function validateForm() {
+    console.log("Form validation started");
+    return true;
+}
+
+// ✅ Run on page load, dropdown change, and form submit
+document.addEventListener('DOMContentLoaded', () => {
+    updateStatusBasedOnHealth();
+    document.getElementById("Health_status").addEventListener('change', updateStatusBasedOnHealth);
+    document.querySelector('form').addEventListener('submit', function() {
+        updateStatusBasedOnHealth();
+    });
+});
+</script>
+</head>
+<body>
+<div class="overlay">
+<div class="container">
+    <h2>Register Animal</h2>
+    <form method="POST" action="register_animal.php" enctype="multipart/form-data" onsubmit="return validateForm()">
+
+        <div class="section-title">Basic Information</div>
+        
+        <label>Animal Name:</label>
+        <input type="text" name="Aname" required>
+        
+        <label>Species:</label>
+        <select id="Species" name="Species" required onchange="updateBreeds()">
+            <option value="">Select Species</option>
+            <option value="Dog">Dog</option>
+            <option value="Cat">Cat</option>
+            <option value="Bird">Bird</option>
+            <option value="Rabbit">Rabbit</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <div id="otherSpecies" style="display:none;">
+            <label>Specify Other Species:</label>
+            <input type="text" id="OtherSpecies" name="OtherSpecies">
+        </div>
+
+        <label>Breed:</label>
+        <select id="Breed" name="Animal_breed" onchange="toggleBreedInput()" disabled>
+            <option value="">Select Species First</option>
+        </select>
+
+        <div id="otherBreed" style="display:none;">
+            <label>Specify Other Breed:</label>
+            <input type="text" id="OtherBreed" name="OtherBreed">
+        </div>
+
+        <label>Age (years):</label>
+        <input type="number" name="Aage" min="0" value="1">
+        
+        <label>Color:</label>
+        <input type="text" name="Color" value="Unknown">
+        
+        <div class="section-title">Physical Characteristics</div>
+        
+        <label>Weight (kg):</label>
+        <input type="number" name="Aweight" step="0.01" min="0.1" value="5.0">
+        
+        <label>Width (meters):</label>
+        <input type="number" name="width" step="0.01" min="0.1" required value="1.0">
+        
+        <label>Height (meters):</label>
+        <input type="number" name="height" step="0.01" min="0.1" required value="1.0">
+        
+        <div class="section-title">Health & Status</div>
+        
+        <label>Health Status:</label>
+        <select id="Health_status" name="Health_status" required>
+            <option value="">--Select--</option>
+            <option value="Healthy" selected>Healthy</option>
+            <option value="Unhealthy">Unhealthy</option>
+        </select>
+        
+        <label>Intake Date:</label>
+        <input type="date" name="Intake_date" required>
+        
+    <label>Status:</label>
+<select id="status" name="status" required>
+    <option value="">--Select Status--</option>
+    <option value="Available" selected>Available</option>
+    <option value="Pending">Pending</option>
+    <option value="Not Available">Not Available</option>
+</select>
+
+        <div class="section-title">Photo</div>
+        
+        <label>Photo:</label>
+        <input type="file" name="animal_picture" accept="image/*" onchange="previewPhoto(event)">
+        
+        <div id="photoPreview" style="display:none;">
+            <div>Photo Preview:</div>
+            <img id="previewImage" src="" alt="Preview" width="200">
+        </div>
+        
+        <div class="section-title">Kennel Allocation</div>
+        
+        <label>Allocation Method:</label>
+        <div class="radio-group">
+            <input type="radio" id="auto_allocate" name="allocation_method" value="auto" checked onchange="toggleKennelSelection()">
+            <label for="auto_allocate">Automatic Allocation</label>
+        </div>
+       
+
+
+        <button type="submit" class="btn">Register Animal</button>
+        <a href='admin dashboard.php' class="btn back-btn">Back to Dashboard</a>
+    </form>
+</div>
+</div>
+
+<script>
+// Set intake date to today by default
+document.querySelector('input[name="Intake_date"]').valueAsDate = new Date();
+
+// Ensure status is updated on page load
+updateStatusBasedOnHealth();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USER REGISTRATION FORM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: #134f5c;
+        }
+
+        .overlay {
+            background: rgba(19, 79, 92, 0.85);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #134f5c;
+        }
+        
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #134f5c;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #0f3f4a;
+        }
+        
+        .btn-secondary {
+            background: #60a5b3;
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: #3d8a95;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <h2>USER REGISTRATION FORM</h2>
+            <form action="createSystemUserSysDev.php" method="POST">
+                <div class="form-group">
+                    <label for="username">User Name:</label>
+                    <input type="text" name="username" maxlength="35" size="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pword">Password:</label>
+                    <input type="password" name="pword" maxlength="35" size="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="surname">Surname:</label>
+                    <input type="text" name="surname" maxlength="35" size="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="firstname">First Name:</label>
+                    <input type="text" name="firstname" maxlength="35" size="20" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idnum">ID Number:</label>
+                    <input type="number" name="idnum" maxlength="35" size="20" placeholder="ID NUMBER automated" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userrole">User Role:</label>
+                    <select id="usrole" name="userrole" required>
+                        <option value="0" selected>Select role</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Administrator">Administrator</option>
+                        <option value="Vet">Vet</option>
+                        <option value="Volunteer">Volunteer</option>
+                        <option value="Guest">Guest</option>
+                    </select>
+                </div>
+                
+                <div class="btn-group">
+                    <input type="submit" value="Create user" class="btn btn-primary">
+                    <input type="reset" value="Clear form" class="btn btn-secondary">
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+

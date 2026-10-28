@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ways to Help - SPCA Guardian Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f4f8fb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(to right, #0d3b47, #134f5c);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .help-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .help-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .help-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .help-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .help-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .help-content h3 {
+            color: #134f5c;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .help-content p {
+            margin-bottom: 20px;
+            color: #555;
+            flex-grow: 1;
+        }
+
+        .help-content ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+            color: #555;
+        }
+
+        .help-content li {
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #1abc9c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #16a085;
+        }
+
+        .btn-container {
+            margin-top: auto;
+        }
+
+        .info-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .info-section h2 {
+            color: #134f5c;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .info-section p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 25px;
+            color: #555;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .contact-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .contact-card i {
+            font-size: 2rem;
+            color: #1abc9c;
+            margin-bottom: 15px;
+        }
+
+        .contact-card h3 {
+            color: #134f5c;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 50px 20px 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: space-around;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #1abc9c;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .footer-column ul li i {
+            margin-right: 12px;
+            margin-top: 4px;
+            min-width: 16px;
+        }
+
+        .footer-column ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: #60a5fa;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+
+        .social-icons a:hover {
+            background: #60a5fa;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .opening-hours {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hours-container {
+            display: flex;
+            flex-direction: column;
+            margin-left: 28px;
+        }
+
+        .hours-container div {
+            line-height: 1.6;
+        }
+
+        .opening-hours-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .help-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-section {
+                padding: 25px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .back-button {
+                top: 15px;
+                left: 15px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .hours-container {
+                margin-left: 0;
+            }
+            
+            .footer-column ul li {
+                flex-direction: column;
+            }
+            
+            .footer-column ul li i {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="container">
+            <h1>Ways to Help SPCA Guardian Pro</h1>
+            <p>Your support makes a difference in the lives of animals in need. Discover how you can contribute to our mission.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="help-options">
+            <div class="help-card">
+                <img src="Images/download (8).jpeg" alt=Volunteer with animals">
+                <div class="help-content">
+                    <h3>Volunteer Your Time</h3>
+                    <p>Join our dedicated team of volunteers and make a hands-on difference in the lives of animals.</p>
+                    <ul>
+                        <li>Animal care and socialization</li>
+                        <li>Administrative support</li>
+                        <li>Event assistance</li>
+                        <li>Community outreach programs</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="Community.html" class="btn">Volunteer</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <img src="Images/xDonate.jpg" alt="Donation illustration">
+                <div class="help-content">
+                    <h3>Make a Donation</h3>
+                    <p>Financial contributions help us provide essential care and services to animals in need.</p>
+                    <ul>
+                        <li>Medical treatments and vaccinations</li>
+                        <li>Food and shelter supplies</li>
+                        <li>Facility maintenance and improvements</li>
+                        <li>Educational programs</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="AddDonations2.html" class="btn">Make a Donation</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <img src="Images/download (10).jpeg" alt="Foster care for animals">
+                <div class="help-content">
+                    <h3>Foster an Animal</h3>
+                    <p>Provide temporary care for animals needing special attention or recovery.</p>
+                    <ul>
+                        <li>Short-term foster opportunities</li>
+                        <li>Special needs animal care</li>
+                        <li>Kitten and puppy fostering</li>
+                        <li>Medical recovery fostering</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="foster.php" class="btn">Foster an Animal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="help-options">
+            <div class="help-card">
+                <img src="Images/download (11).jpeg" alt="Adopt a pet">
+                <div class="help-content">
+                    <h3>Adopt a Pet</h3>
+                    <p>Give a forever home to an animal in need and experience the joy of pet companionship.</p>
+                    <ul>
+                        <li>Meet our available animals</li>
+                        <li>Learn about the adoption process</li>
+                        <li>Post-adoption support</li>
+                        <li>Success stories</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="adoption_form.php" class="btn">View Animals for Adoption</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-card">
+                <img src="Images/download (9).jpeg"Animal protection">
+                <div class="help-content">
+                    <h3>Report Animal Cruelty</h3>
+                    <p>Help us protect animals by reporting suspected abuse or neglect.</p>
+                    <ul>
+                        <li>Recognize signs of animal cruelty</li>
+                        <li>How to report safely</li>
+                        <li>What information we need</li>
+                        <li>Follow-up process</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="cruelty_report_form.php" class="btn">Report Cruelty</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>Every Contribution Makes a Difference</h2>
+            <p>Whether you donate your time, resources, or skills, your support helps us continue our vital work rescuing, rehabilitating, and rehoming animals in need. Together, we can create a community where every animal is valued and protected.</p>
+            
+            <div class="contact-info">
+                <div class="contact-card">
+                    <i class="fas fa-phone"></i>
+                    <h3>Call Us</h3>
+                    <p>+27 76 856 0086</p>
+                </div>
+                
+                <div class="contact-card">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Email Us</h3>
+                    <p>spcaguardianpro@gmail.com</p>
+                </div>
+                
+                <div class="contact-card">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Visit Us</h3>
+                    <p>Old Bay Road, Makhanda 6139, South Africa</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>SPCA Guardian Pro</h3>
+                <p>We are dedicated to rescuing, rehabilitating, and rehoming animals in need.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.twitter.com"><i class="fab fa-twitter"></i></a>
+                    <a href="https://wa.me/27768560086" class="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="adoption_form.php">Adopt a Pet</a></li>
+                    <li><a href="foster.php"></i> Foster a Pet</a></li>
+                    <li><a href="WaysToHelp.html">Ways to Help</a></li>
+                    <li><a href="about_us.html">About Us</a></li>
+                    <li><a href="publicguide.pdf"></i> Help</a></li>
+
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> Old Bay Road, Makhanda 6139, South Africa</li>
+                    <li><i class="fas fa-phone"></i> +27 76 856 0086</li>
+                    <li><i class="fas fa-envelope"></i> spcaguardianpro@gmail.com</li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <div class="opening-hours">
+                         <div class="hours-container">
+                                <div><strong>Mon-Fri:</strong> 9am - 4pm</div>
+                                <div><strong>Saturday:</strong> 9am - 12pm</div>
+                                <div><strong>Sunday:</strong> 9am - 11am</div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 SPCA Guardian Pro. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

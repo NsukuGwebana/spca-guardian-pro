@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SPCA Guardian Pro - Volunteer Engagement Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #134f5c;
+    }
+
+    .overlay {
+      background: rgba(19, 79, 92, 0.85);
+      min-height: 100vh;
+      padding: 30px 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 25px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #134f5c;
+    }
+
+    form label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+      color: #134f5c;
+    }
+
+    form input, form select, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 16px;
+      border: 1px solid #134f5c;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    form textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #134f5c;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .btn:hover {
+      background: #0f3f4a;
+    }
+
+    .reset-btn {
+      background: #60a5b3;
+    }
+
+    .reset-btn:hover {
+      background: #3d8a95;
+    }
+
+    .back-btn {
+      display: block;
+      width: fit-content;
+      background: #60a5b3;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 20px auto 0;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      background: #3d8a95;
+    }
+
+    fieldset {
+      border: none;
+    }
+
+    /* Hide 'Other' input by default */
+    #other_activity_field {
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <h2>Community Engagement Form</h2>
+
+      <fieldset>
+        <form action="Community.php" method="POST">
+          <b>Personal Details</b><br><br>
+
+          <label>Full Name: </label>
+          <input type="text" name="volunteer_Fname" required>
+
+          <label>Full Surname:</label>
+          <input type="text" name="volunteer_Lname" required>
+
+          <label>Contact Number: </label>
+          <input type="tel" name="contact_number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="041-456-8986" required>
+
+          <label>Email:</label>
+          <input type="email" name="email" placeholder="nsuku@gmail.com" required>
+
+          <label>Date: </label>
+          <input type="date" name="date" required><br><br>
+
+          <b>Activity Details</b><br><br>
+          <label>Activity Type: </label>
+          <select name="activities_name" id="activity_type" required>
+            <option value="#">-- Select type--</option>
+            <option value="Fostering">Foster</option>
+            <option value="Walking">Walk</option>
+            <option value="Feeding">Feed</option>
+            <option value="Visiting">Visit</option>
+            <option value="Hyygiene Assistance">Hygiene</option>
+            <option value="Fundraising">Fundraising</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <!-- Hidden input for 'Other' option -->
+          <div id="other_activity_field">
+            <label>Please specify if other:</label>
+            <input type="text" name="other_activity">
+          </div>
+
+          <label>Activity Description:</label>
+          <textarea name="activity_description"></textarea>
+
+          <b>Time Tracking</b><br><br>
+          <label>Start time: </label>
+          <input type="time" name="start_time" id="start_time" required>
+
+          <label>End time: </label>
+          <input type="time" name="end_time" id="end_time" required>
+
+          <label>Time lapsed:</label>
+          <input type="text" name="lapse_time" id="elapsed_time" readonly>
+
+          <b>Supervisor Details</b><br><br>
+          <label>Supervisor Name:</label>
+          <input type="text" name="supervisor_name">
+
+          <label>Supervisor Surname:</label>
+          <input type="text" name="supervisor_surname">
+
+          <div class="button-container">
+            <button type="submit" class="btn">Submit</button>
+            <button type="reset" class="btn reset-btn">Reset Form</button>
+          </div>
+        </form>
+        
+        <!-- Back Button -->
+        <button class="back-btn" onclick="if (history.length > 1) { history.back(); } else { window.location.href='regA.php'; }">
+          Back
+        </button>
+      </fieldset>
+    </div>
+  </div>
+
+  <script>
+    const start = document.getElementById("start_time");
+    const end = document.getElementById("end_time");
+    const elapsed = document.getElementById("elapsed_time");
+
+    function calculateDifference() { 
+      if (start.value && end.value) {
+        let startDate = new Date("1970-01-01T" + start.value + ":00");
+        let endDate = new Date("1970-01-01T" + end.value + ":00");
+
+        if (endDate < startDate) {
+          endDate.setDate(endDate.getDate() + 1);
+        }
+
+        let diffMs = endDate - startDate;
+        let diffHrs = Math.floor(diffMs / 1000 / 60 / 60);
+        let diffMins = Math.floor((diffMs / 1000 / 60) % 60);
+
+        elapsed.value = diffHrs + " hours " + diffMins + " minutes";
+      }
+    }
+
+    start.addEventListener("change", calculateDifference);
+    end.addEventListener("change", calculateDifference);
+    elapsed.addEventListener("click", calculateDifference);
+
+    // Show/hide "Other" field
+    const activityType = document.getElementById("activity_type");
+    const otherField = document.getElementById("other_activity_field");
+
+    activityType.addEventListener("change", function() {
+      if (this.value === "Other") {
+        otherField.style.display = "block";
+      } else {
+        otherField.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

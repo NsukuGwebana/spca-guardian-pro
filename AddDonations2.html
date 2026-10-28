@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Donation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #134f5c;
+    }
+
+    .overlay {
+      background: rgba(19,79,92,0.85);
+      min-height: 100vh;
+      padding: 30px 0;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #134f5c;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    input[readonly] {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+    }
+
+    .btn-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 18px;
+      background: #134f5c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .btn:hover {
+      background: #0f3f4a;
+      transform: translateY(-2px);
+    }
+
+    .reset-btn {
+      background: #134f5c;
+      flex: none;
+      width: auto;
+    }
+
+    .back-btn {
+      background: #60a5b3;
+      flex: none;
+      width: auto;
+    }
+
+    .cancel-back-btn {
+      background: #60a5b3;
+      flex: none;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="container">
+      <h2>Add Donation Information</h2>
+      <form action="addDonations2.php" method="POST">
+        <label for="donorid">Donor ID:</label>
+        <input type="number" id="donorid" name="donorid" value="" readonly>
+
+        <label for="amount">Donation Amount (R):</label>
+        <input type="number" id="amount" name="amount" required>
+
+        <label for="fname">Name:</label>
+        <input type="text" id="fname" name="fname" required>
+
+        <label for="lname">Surname:</label>
+        <input type="text" id="lname" name="lname" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="number" id="phone" name="phone">
+
+        <label for="type">Donation Type:</label>
+        <select id="type" name="type">
+          <option value="one-time">One-time Donation</option>
+          <option value="monthly">Monthly Donation</option>
+        </select>
+
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required>
+
+        <label for="date">Donation Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <div class="btn-container">
+          <button type="submit" class="btn">Submit Donation</button>
+          <button type="reset" class="btn reset-btn">Reset Form</button>
+         
+          <!-- Cancel/Back button with same size as Reset Form -->
+          <a href="javascript:void(0);" class="btn cancel-back-btn" 
+             onclick="if (history.length > 1) { history.back(); } else { window.location.href='regA.php'; }">
+             Back
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

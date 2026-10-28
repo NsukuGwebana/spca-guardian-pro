@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+<title></title>
+<head>
+
+<body>
+
+<h2> User Update form </h2>
+<hr>
+
+<form action= "UserUpdate.php" method = "POST" enctype = "multipart/form-data">
+
+<table width = 25%>
+
+<tr><td> USER NAME: </td><td> <input type="text" name="username" maxlength="35" size="20" value="<?php echo $row2['username'];?>" required readonly></td></tr>
+        <br>
+        <br>
+<tr><td> PASSWORD: </td><td> <input type="password" name="pword" maxlength="35" size="20" value="<?php echo $row2['userpassword'];?>" required readonly></td></tr>
+        <br>
+        <br>
+<tr><td> SURNAME: </td><td> <input type="text" name="surname" maxlength="35" size="20" value="<?php echo $row2['surname'];?>" required readonly></td></tr>
+        <br>
+        <br>
+<tr><td> FIRST NAME: </td><td> <input type="text" name="firstname" maxlength="35" size="20" value="<?php echo $row2['firstname'];?>" readonly></td></tr>
+        <br>
+        <br>
+<tr><td> ID NUMBER: </td><td> <input type="number" name="idnum" maxlength="35" size="20" value="<?php echo $row2['idnumber'];?>" required readonly ></td></tr>
+        <br>
+        <br>
+<tr><td> USER ROLE: <select id="usrole" name="userrole">
+            <option value="0">Select role</option>
+            <option value="Manager">Manager</option>
+            <option value="Administrator">Administrator</option>
+            <option value ="Vet">Vet</option>
+            <option value="Volunteer">Volunteer</option>
+            <option value="Guest">Guest</option>
+        </select>
+        <br>
+        <br>
+        <input type = "submit" name="update" value="Update">
+        <input type = "reset" value= "   Clear form   ">
+        <br>
+        <br>
+</table>
+</form>
+</body>
+</html>
