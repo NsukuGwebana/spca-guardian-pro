@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt->execute()) {
         echo "<h2 style='color:green; text-align:center;'>✅ Report submitted successfully!</h2>";
-        echo "<p style='text-align:center;'><a href='dashboard.html'>Back to Dashboard</a></p>";
+        echo "<p style='text-align:center;'><a href='Homepage.html'>Back to Home</a></p>";
     } else {
         echo "<h2 style='color:red; text-align:center;'>❌ Error submitting report: " . $stmt->error . "</h2>";
     }

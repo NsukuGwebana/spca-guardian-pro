@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_id'])) {
     $stmt->close();
 
     // Redirect to avoid resubmission
-    header("Location: view_appointments.php?filter=" . ($_GET['filter'] ?? 'all') . "&cancelled=1");
+    header("Location: fetchapp.php?filter=" . ($_GET['filter'] ?? 'all') . "&cancelled=1");
     exit();
 }
 

@@ -952,7 +952,7 @@ $conn->close();
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-brand">
-          <img src="images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
+          <img src="Images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
           <span>Volunteer Staff Dashboard</span> <br><br>
         </div>
         <button class="toggle-sidebar">
@@ -976,7 +976,7 @@ $conn->close();
             <span class="material-icons-outlined dropdown-arrow">chevron_right</span>
           </div>
           <div id="activities-dropdown" class="nav-dropdown">
-            <a href="community.html" class="dropdown-item"></a>
+            <a href="Community.html" class="dropdown-item"></a>
             
 
 

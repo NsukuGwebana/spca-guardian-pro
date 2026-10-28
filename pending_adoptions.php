@@ -257,7 +257,7 @@ p.message {
 </table>
 <?php endif; ?>
 
-<a href="dashboard.php" class="back-btn">⬅ Back to Dashboard</a>
+<a href="admin dashboard.php" class="back-btn">⬅ Back to Dashboard</a>
 
 <!-- Modal for viewing ID -->
 <div id="idModal">

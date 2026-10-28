@@ -17,7 +17,7 @@ if (isset($_POST['Update'])) {
         // No matching record found
         echo "<div style='text-align: center; padding: 20px;'>";
         echo "<p class=\"error\">Invalid ID number or username combination. Please check your credentials.</p>";
-        echo "<p><a href='ForgotPassword.html'><button style='padding: 10px 20px; background: #134f5c; color: white; border: none; border-radius: 5px; cursor: pointer;'>Retry</button></a></p>";
+        echo "<p><a href='ForgotPasswordform.html'><button style='padding: 10px 20px; background: #134f5c; color: white; border: none; border-radius: 5px; cursor: pointer;'>Retry</button></a></p>";
         echo "</div>";
     } else {
         // Matching record found, proceed with password update

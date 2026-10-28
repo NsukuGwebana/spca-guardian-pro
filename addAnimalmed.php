@@ -15,7 +15,7 @@ if ($result===False)
 else{
     echo "Medical information successfully added in the database";
 }
-echo"<a href='ShowAnimal_profile.php?id=".$animal['id']."' class='btn update-btn'><button>Back to show animal profile</a></button>";
+echo "<a href='ShowAnimal_profile.php?id=" . $medid . "' class='btn update-btn'><button>Back to show animal profile</button></a>";
 
 //If the user is vet show the following buttonS (Add medical record and update medical record)
 

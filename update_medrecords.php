@@ -254,7 +254,7 @@ $vet_result = $conn->query("SELECT DISTINCT vet_id FROM appointments WHERE vet_i
   <?php if (!empty($animal['animal_picture'])): ?>
     <img src="<?= htmlspecialchars($animal['animal_picture']) ?>" alt="<?= htmlspecialchars($animal['Aname']) ?>">
   <?php else: ?>
-    <img src="default-placeholder.jpg" alt="No image available">
+    <img src="Images/Logo.jpeg" alt="No image available">
   <?php endif; ?>
 
   <div>

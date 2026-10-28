@@ -21,11 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Successful login
         $_SESSION['username'] = $username;
         echo "<h3>Welcome, $username!</h3>";
-        echo "<a href='logout.php'>Logout</a>";
+        echo "<a href='logoutForm.php'>Logout</a>";
     } else {
         // Invalid login
         echo "<h3 style='color:red;'>Invalid username or password.</h3>";
-        echo "<a href='loginForm.html'>Go back to login</a>";
+        echo "<a href='Newlogin.html'>Go back to login</a>";
     }
 } else {
     // Redirect to form if accessed directly

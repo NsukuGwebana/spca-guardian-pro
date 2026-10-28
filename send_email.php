@@ -139,7 +139,7 @@ if (isset($_POST['send'])) {
         <textarea name="body" rows="6" required placeholder="Enter your message"></textarea>
 
         <button type="submit" name="send" class="btn">Send Email</button>
-        <a href="dashboard.html" class="btn back-btn">Back to Dashboard</a>
+        <a href="admin dashboard.php" class="btn back-btn">Back to Dashboard</a>
     </form>
 </div>
 </div>

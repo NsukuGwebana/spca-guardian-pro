@@ -746,7 +746,7 @@ $userRole = $_SESSION['userrole'] ?? '';
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-brand">
-                    <img src="images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
+                    <img src="Images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
                     <span>Vet Dashboard</span>
                 </div>
                 <button class="toggle-sidebar">
@@ -765,7 +765,7 @@ $userRole = $_SESSION['userrole'] ?? '';
                 
                 <div class="nav-section">
                     <div class="nav-title">Management</div>
-                    <a href="regA.PHP" class="nav-item">
+                    <a href="regA.php" class="nav-item">
                         <span class="material-icons-outlined nav-icon">pets</span>
                         <span class="nav-label">View Animals</span>
                     </a>

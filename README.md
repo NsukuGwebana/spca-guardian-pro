@@ -78,8 +78,10 @@ The system includes user documentation for each role:
 Built by the SysMasters team, Department of Information Systems, Rhodes University (2025):
 
 - **Nsuku Gwebana** – full stack development (front end, back end, database), testing, documentation and presentation
-- *(teammate name – role)*
-- *(teammate name – role)*
+- **Pozisa Ndzuzo**
+- **Ayolisa Smoki**
+- **Katlego Moketla**
+- **Mbali**
 
 ## Note
 

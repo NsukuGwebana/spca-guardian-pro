@@ -905,7 +905,7 @@ $conn->close();
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-brand">
-          <img src="images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
+          <img src="Images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image" style="width: 70px; height: 70px;padding: 5px;border: 12px; object-fit:cover;border-radius: 50%;"/>
           <span>Volunteer Dashboard</span>
         </div>
         <button class="toggle-sidebar">
@@ -933,7 +933,7 @@ $conn->close();
             <span class="material-icons-outlined dropdown-arrow">chevron_right</span>
           </div>
           <div id="tasks-dropdown" class="nav-dropdown">
-            <a href="track_volunteer.php" class="dropdown-item">View My Activities</a>
+            <a href="track_.php" class="dropdown-item">View My Activities</a>
              <a href="track_foster.php" class="dropdown-item"> View Foster</a>
           </div>
           
@@ -946,8 +946,8 @@ $conn->close();
             <span class="material-icons-outlined dropdown-arrow">chevron_right</span>
           </div>
           <div id="events-dropdown" class="nav-dropdown">
-            <a href="volunteer_events.php" class="dropdown-item">Upcoming Events</a>
-            <a href="event_signup.php" class="dropdown-item">Sign Up for Events</a>
+            <a href="viewEvents.php" class="dropdown-item">Upcoming Events</a>
+            <a href="Community.html" class="dropdown-item">Sign Up for Events</a>
           </div>
           
           
@@ -973,7 +973,7 @@ $conn->close();
       <header class="header">
         <h1 class="page-title">Volunteer Dashboard</h1>
         <div class="header-actions">
-          <a href="volunteer_messages.php" class="action-btn">
+          <a href="contact.html" class="action-btn">
             <span class="material-icons-outlined">mail</span>
           </a>
           
@@ -998,7 +998,7 @@ $conn->close();
             </div>
             <div class="stat-value"><?php echo $assignedTasksCount; ?></div>
             <div class="stat-title">Assigned Tasks</div>
-            <a href="track_volunteer.php" class="stat-link">
+            <a href="track_.php" class="stat-link">
               <span>View my tasks</span>
               <span class="material-icons-outlined">arrow_forward</span>
             </a>
@@ -1012,7 +1012,7 @@ $conn->close();
             </div>
             <div class="stat-value"><?php echo $completedTasksCount; ?></div>
             <div class="stat-title">Completed Activities</div>
-            <a href="track_volunteer.php" class="stat-link">
+            <a href="track_.php" class="stat-link">
               <span>View completed activities</span>
               <span class="material-icons-outlined">arrow_forward</span>
             </a>
@@ -1026,7 +1026,7 @@ $conn->close();
             </div>
             <div class="stat-value"><?php echo $upcomingEventsCount; ?></div>
             <div class="stat-title">Upcoming Events</div>
-            <a href="volunteer_events.php" class="stat-link">
+            <a href="viewEvents.php" class="stat-link">
               <span>View all events</span>
               <span class="material-icons-outlined">arrow_forward</span>
             </a>
@@ -1040,7 +1040,7 @@ $conn->close();
             </div>
             <div class="stat-value"><?php echo $volunteerHours; ?></div>
             <div class="stat-title">Total Volunteer Hours</div>
-            <a href="track_volunteer.php" class="stat-link">
+            <a href="track_.php" class="stat-link">
               <span>View hours details</span>
               <span class="material-icons-outlined">arrow_forward</span>
             </a>
@@ -1055,7 +1055,7 @@ $conn->close();
             <div class="activity-feed">
               <div class="section-header">
                 <h2 class="section-title">Recent Activities</h2>
-                <a href="activity_log.php" class="view-all">
+                <a href="track_.php" class="view-all">
                   <span>View All</span>
                   <span class="material-icons-outlined">arrow_forward</span>
                 </a>
@@ -1105,28 +1105,28 @@ $conn->close();
               </div>
               
               <div class="action-grid">
-                <a href="log_hours.php" class="action-button">
+                <a href="Community.html" class="action-button">
                   <div class="action-button-icon">
                     <span class="material-icons-outlined">add</span>
                   </div>
                   <div class="action-button-text">Log Hours</div>
                 </a>
                 
-                <a href="report_issue.php" class="action-button">
+                <a href="contact.html" class="action-button">
                   <div class="action-button-icon">
                     <span class="material-icons-outlined">report_problem</span>
                   </div>
                   <div class="action-button-text">Report Issue</div>
                 </a>
                 
-                <a href="request_support.php" class="action-button">
+                <a href="contact.html" class="action-button">
                   <div class="action-button-icon">
                     <span class="material-icons-outlined">support</span>
                   </div>
                   <div class="action-button-text">Request Support</div>
                 </a>
                 
-                <a href="view_schedule.php" class="action-button">
+                <a href="viewEvents.php" class="action-button">
                   <div class="action-button-icon">
                     <span class="material-icons-outlined">calendar_today</span>
                   </div>

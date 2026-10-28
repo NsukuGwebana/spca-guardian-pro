@@ -211,7 +211,7 @@ section {
     <?php endif; ?>
 
     <button type="submit" class="btn"><i class="fas fa-save"></i> Save Treatment</button>
-<a href="VetDashboard.php" class="btn back-btn"><i></i> Back</a>
+<a href="vetDashboard.php" class="btn back-btn"><i></i> Back</a>
 
   </form>
 </article>

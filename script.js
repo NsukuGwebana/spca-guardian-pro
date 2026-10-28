@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (searchTerm === 'contact') {
             window.location.href = '#contact';
         }else if (searchTerm === 'Report Animal Cruelty' || searchTerm === 'report cruelty') {
-            window.location.href = 'report_cruelty.html';
+            window.location.href = 'cruelty_report_form.php';
          } else {
             alert('No matching section found. Please try "Adopt", "Community", "Impact", or "Contact".');
         }

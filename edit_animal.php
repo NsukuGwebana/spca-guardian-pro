@@ -2,7 +2,7 @@
 // Resume session and check access
 session_start();
 if (!isset($_SESSION['access']) || $_SESSION['access'] !== "yes") {
-    header("Location: loginFormSysdev"); 
+    header("Location: Newlogin.html"); 
     exit();
 }
 

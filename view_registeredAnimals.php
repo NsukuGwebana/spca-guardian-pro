@@ -3,7 +3,7 @@ include("databaseConnection.php");
 session_start();
 
 if(!isset($_SESSION['access']) || $_SESSION['access']!="yes"){
-    header("Location: loginFormSysdev"); exit();
+    header("Location: Newlogin.html"); exit();
 }
 
 // Handle actions BEFORE HTML output

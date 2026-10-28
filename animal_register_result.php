@@ -170,7 +170,7 @@ h2 {
         echo '<div class="error-message">Error: ' . htmlspecialchars($errorMessage) . '</div>';
     }
     ?>
-    <a href='dashboard.html' class="btn back-btn">Back to Dashboard</a>
+    <a href='admin dashboard.php' class="btn back-btn">Back to Dashboard</a>
     <a href='register_animal.html' class="btn back-btn">Register Another Animal</a>
 </div>
 </div>

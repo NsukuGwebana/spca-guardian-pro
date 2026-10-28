@@ -1,6 +1,6 @@
 <?php
 require_once 'databaseConnection.php';
-$animal_id = $_GET['id'];
+$animal_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 //$sql3 = "INSERT INTO medical_care() ";
 //$stmt = $conn->prepare($sql3);
@@ -40,7 +40,7 @@ $record = $stmt2->get_result()->fetch_assoc();
     }
     ?>
 
-    <form method="POST" action="saveProcedure.php">
+    <form method="POST" action="SaveProcedure.php">
         <input type="hidden" name="animal_id" value="<?= $animal_id ?>">
         <label>Treatment Type:</label><input type="text" name="Treatmenttype" required><br>
         <label>Date:</label><input type="date" name="Treatmentdate" value="<?= date('Y-m-d') ?>" required><br>

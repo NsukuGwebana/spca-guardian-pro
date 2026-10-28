@@ -207,19 +207,25 @@ function updateStatusBasedOnHealth() {
     if (healthStatus === "Healthy" || healthStatus === "") {
         // Default to Available if nothing selected
         statusField.value = "Available";
-        statusNote.style.display = "block";
-        statusNoteUnhealthy.style.display = "none";
+        if (statusNote) statusNote.style.display = "block";
+        if (statusNoteUnhealthy) statusNoteUnhealthy.style.display = "none";
     } else if (healthStatus === "Unhealthy") {
+        // An unhealthy animal must not be offered for adoption
         statusField.value = "Not Available";
-        statusNote.style.display = "none";
-        statusNoteUnhealthy.style.display = "block";
+        if (statusNote) statusNote.style.display = "none";
+        if (statusNoteUnhealthy) statusNoteUnhealthy.style.display = "block";
     }
 
     console.log("Status field updated:", statusField.value);
 }
 
+function isManualAllocation() {
+    var manual = document.getElementById("manual_allocate");
+    return manual ? manual.checked : false;
+}
+
 function toggleKennelSelection() {
-    var manualSelect = document.getElementById("manual_allocate").checked;
+    var manualSelect = isManualAllocation();
     var kennelSelection = document.getElementById("kennel_selection");
     
     if (manualSelect) {
@@ -259,22 +265,17 @@ function loadAvailableKennels() {
         });
 }
 
-document.querySelector('input[name="width"]').addEventListener('change', function() {
-    if (document.getElementById("manual_allocate").checked) {
-        loadAvailableKennels();
-    }
-});
-
-document.querySelector('input[name="height"]').addEventListener('change', function() {
-    if (document.getElementById("manual_allocate").checked) {
-        loadAvailableKennels();
-    }
-});
-
-document.getElementById("Species").addEventListener('change', function() {
-    if (document.getElementById("manual_allocate").checked) {
-        loadAvailableKennels();
-    }
+// Attach listeners once the form exists (this script runs in <head>, before the form is built)
+document.addEventListener('DOMContentLoaded', function() {
+    ['input[name="width"]', 'input[name="height"]', '#Species'].forEach(function(selector) {
+        var field = document.querySelector(selector);
+        if (!field) return;
+        field.addEventListener('change', function() {
+            if (isManualAllocation()) {
+                loadAvailableKennels();
+            }
+        });
+    });
 });
 
 function validateForm() {
