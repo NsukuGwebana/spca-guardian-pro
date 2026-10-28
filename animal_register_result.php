@@ -129,10 +129,11 @@ h2 {
         echo '<h2>Animal Registered Successfully!</h2>';
         echo '<div class="success-message">Animal profile created and kennel allocated.</div>';
 
-        $animalId = $_GET['animalId'];
-        $sql = "SELECT * FROM animals a 
-                JOIN kennels k ON a.kennel_id = k.kennel_id 
-                WHERE a.animal_id = ?";
+        $animalId = (int)($_GET['animalId'] ?? 0);
+        $sql = "SELECT * FROM animals a
+                LEFT JOIN animal_kennel ak ON ak.animal_id = a.id
+                LEFT JOIN kennels k ON ak.kennel_id = k.kennel_id
+                WHERE a.id = ?";
         
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $animalId);

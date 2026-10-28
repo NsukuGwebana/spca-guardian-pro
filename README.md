@@ -18,7 +18,8 @@ Built as a year-long final-year Information Systems team project at Rhodes Unive
 **Staff system (role-based)**
 - Accounts for **Administrator, Manager, Vet, Volunteer and Guest**, each with its own dashboard
 - **Animal intake:** species-dependent breed lists, photo upload with preview, and availability set from health status
-- **Kennel management:** register, edit, archive and restore kennels; occupancy tracking that marks a kennel *Full* at capacity; kennel matching on the animal's species and size
+- **Kennel management:** register, edit, archive and restore kennels, with capacity calculated from each kennel's dimensions
+- **Automatic kennel allocation:** new animals are placed in the smallest available kennel that fits their size, with species-specific kennels preferred for healthy animals. If nothing fits, the animal goes to an Emergency Cell, which the system creates or enlarges as needed
 - **Adoptions and fostering:** screening, approval, history, and an adoption rule that only accepts healthy, available animals
 - **Veterinary care:** appointments, follow-ups and medical treatment records
 - **Cruelty investigations:** case logging and status tracking
@@ -57,12 +58,34 @@ Pages such as kennel selection, homepage statistics and the reports dashboards c
 
 User input is handled with prepared statements and bound parameters, numeric IDs are cast to integers, and output is escaped with `htmlspecialchars` to guard against SQL injection and cross-site scripting. Passwords are hashed with `password_hash` and checked with `password_verify`.
 
+## Database
+
+23 MySQL tables. The core relationships:
+
+```mermaid
+erDiagram
+    animals ||--o{ animal_kennel : "placed in"
+    kennels ||--o{ animal_kennel : holds
+    animals ||--o{ adoptions : "applied for"
+    animals ||--o{ fosters : "applied for"
+    adoptions ||--o{ appointment : "meet-and-greet"
+    animals ||--o{ appointments : "vet visit"
+    appointments ||--o{ treatments : records
+    animals ||--o{ medical_care : procedures
+    users ||--o{ appointments : "vet"
+    donor ||--o{ donations : makes
+    cruelty_report ||--o| cruelty_investigation : investigated
+    volunteers ||--o{ volunteer_tasks : assigned
+```
+
+Other tables: `users` and `logtrails` (staff accounts and login log), `community_engagement`, `events` and `volunteer_events` (volunteer activity), `vaccinations`, `contact_submissions` and `spca_subscribers`. Full definitions are in [`database/sysmasters_schema.sql`](database/sysmasters_schema.sql).
+
 ## Running it locally
 
 1. Install [XAMPP](https://www.apachefriends.org/) (Apache, PHP and MySQL).
 2. Copy this folder into `C:\xampp\htdocs\spca-guardian-pro`.
 3. Start **Apache** and **MySQL** in the XAMPP control panel.
-4. Open phpMyAdmin at `http://localhost/phpmyadmin`, create a database named `sysmasters` and import the database file from the `database/` folder.
+4. Open phpMyAdmin at `http://localhost/phpmyadmin`, create a database named `sysmasters` and import [`database/sysmasters_schema.sql`](database/sysmasters_schema.sql). This creates all 23 tables, empty.
 5. Copy `config.example.php` to `config.php` and fill in your database details (on XAMPP: host `localhost`, user `root`, empty password). To send emails, add a Gmail address and a [Gmail App Password](https://support.google.com/accounts/answer/185833).
 6. Visit `http://localhost/spca-guardian-pro/Homepage.html`.
 

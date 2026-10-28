@@ -289,7 +289,8 @@ input, select, textarea {
       <?php
       if ($view_animal_id > 0) {
           $treatments = $conn->prepare("
-              SELECT t.treatment_type, t.status, t.treatment_date, t.details
+              SELECT t.treatment_types AS treatment_type, t.treatment_status AS status,
+                     t.treatment_date, t.treatment_details AS details
               FROM treatments t
               INNER JOIN appointments a ON t.app_id = a.app_id
               WHERE a.animal_id = ?

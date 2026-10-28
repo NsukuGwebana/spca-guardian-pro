@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
 
         // Insert treatments
-        $treat_stmt = $conn->prepare("INSERT INTO treatments (appointment_id, treatment_types, treatment_details, treatment_date, recorded_by) VALUES (?, ?, ?, ?, ?)");
+        $treat_stmt = $conn->prepare("INSERT INTO treatments (app_id, treatment_types, treatment_details, treatment_date, recorded_by) VALUES (?, ?, ?, ?, ?)");
         foreach ($treatments as $treatment) {
             $treat_stmt->bind_param("issss", $appointment_id, $treatment, $treatment, $app_date, $recorded_by);
             $treat_stmt->execute();
@@ -73,7 +73,7 @@ while ($row = $app_result->fetch_assoc()) {
 }
 $app_stmt->close();
 
-$treat_stmt = $conn->prepare("SELECT treatment_types, treatment_details, treatment_date, recorded_by FROM treatments WHERE appointment_id = ?");
+$treat_stmt = $conn->prepare("SELECT treatment_types, treatment_details, treatment_date, recorded_by FROM treatments WHERE app_id = ?");
 $treat_stmt->bind_param("i", $app['app_id']);
 $treat_stmt->execute();
 $treat_result = $treat_stmt->get_result();

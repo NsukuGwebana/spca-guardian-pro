@@ -6,7 +6,7 @@ if(isset($_GET['action'], $_GET['id'])) {
     $id = (int)$_GET['id'];
     $status = $_GET['action'] === 'complete' ? 'Completed' : 'Missed';
 
-    $stmt = $conn->prepare("UPDATE appointments SET status=? WHERE id=?");
+    $stmt = $conn->prepare("UPDATE appointment SET status=? WHERE appointment_id=?");
     $stmt->bind_param("si", $status, $id);
     if($stmt->execute()) {
         $message = "Appointment marked as {$status}.";
@@ -15,9 +15,9 @@ if(isset($_GET['action'], $_GET['id'])) {
 
 // Fetch all appointments
 $result = $conn->query("
-    SELECT ap.id, ap.appointment_date, ap.status, ap.notes,
+    SELECT ap.appointment_id AS id, ap.appointment_date, ap.status, ap.notes,
            ad.full_name, ad.email, ani.Aname
-    FROM appointments ap
+    FROM appointment ap
     JOIN adoptions ad ON ap.adoption_id = ad.id
     JOIN animals ani ON ad.animal_id = ani.id
     ORDER BY ap.appointment_date DESC

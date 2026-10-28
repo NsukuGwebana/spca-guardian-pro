@@ -16,7 +16,7 @@ try {
         WHERE status = 'Available'
         AND max_width >= ? 
         AND max_height >= ?
-        AND (species_allowed = ? OR species_allowed = 'Any')
+        AND (species_compatibility = ? OR species_compatibility = 'General')
     ");
 
     if (!$stmt) {
