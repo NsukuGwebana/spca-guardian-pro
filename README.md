@@ -6,6 +6,24 @@ Built as a year-long final-year Information Systems team project at Rhodes Unive
 
 ![SPCA Guardian Pro homepage](docs/screenshots/homepage.jpg)
 
+## My contributions (Nsuku Gwebana)
+
+I designed and built the two main entry points to the system, and contributed to documentation, testing and the final presentation.
+
+**Admin dashboard** ([`admin dashboard.php`](admin%20dashboard.php))
+- Session-protected staff dashboard: users who aren't logged in are sent to the login page, and the signed-in user's name and role are shown
+- Summary cards from live database counts: new cruelty reports, pending adoptions, animals available for adoption and donations in the last 30 days
+- Recent activity feed that merges the latest adoptions, cruelty reports and donations into one timeline with a SQL `UNION`
+- Navigation hub linking about 30 staff modules: animals and kennels, adoptions and fostering, cruelty reports, volunteers and events, donations, users, subscribers, and the reporting and analytics pages
+
+**Public homepage** ([`Homepage.html`](Homepage.html))
+- Hero banner with calls to action for reporting cruelty and adopting
+- Navigation with a Get Involved menu for adopting, fostering, volunteering, donating and tracking applications
+- Live impact statistics loaded with `fetch()` from a PHP endpoint, with animated counters, auto-refresh every five minutes and a fallback if the request fails
+- Site search that filters the page's sections, highlights matches and jumps to the result
+- Community, highlights, success stories, newsletter sign-up and a map of the shelter
+- Responsive layout for phones and tablets
+
 ## Features
 
 **Public site**
