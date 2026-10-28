@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $max_volunteers = (int) $_POST['max_volunteers'];
 
     // Use prepared statement to prevent SQL injection
-    $stmt = $conn->prepare("INSERT INTO sysmasters.events 
+    $stmt = $conn->prepare("INSERT INTO events 
         (event_name, event_date, event_time, location, description, max_volunteers, created_at) 
         VALUES (?, ?, ?, ?, ?, ?, NOW())");
 

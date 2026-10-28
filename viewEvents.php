@@ -2,7 +2,7 @@
 <?php
 include "databaseConnection.php";
 
-$sql = "SELECT * FROM sysmasters.events ORDER BY event_date ASC";
+$sql = "SELECT * FROM events ORDER BY event_date ASC";
 $result = $conn->query($sql);
 ?>
 
