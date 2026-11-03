@@ -1,16 +1,11 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
 
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+
+$conn = db();
 
 // Fetch all foster applications (history)
 $result = $conn->query("
@@ -23,13 +18,12 @@ $result = $conn->query("
     ORDER BY f.id DESC
 ");
 $fosters = $result->fetch_all(MYSQLI_ASSOC);
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-<title>Foster History</title>
+<title>Foster History | SPCA Guardian Pro</title>
 <style>
 body { font-family: Arial, sans-serif; background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed; background-size: cover; margin:0; padding:0; color:#fff; }
 .overlay { background: rgba(19, 79, 92, 0.85); min-height: 100vh; padding: 30px; }
@@ -46,8 +40,10 @@ p.message { text-align:center; font-weight:bold; font-size:1.1rem; color:#ffd700
 .status-rejected { color:#fff; background:#f44336; padding:3px 8px; border-radius:6px; font-weight:bold; }
 .status-pending { color:#fff; background:#ff9800; padding:3px 8px; border-radius:6px; font-weight:bold; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <h1>Foster History</h1>
 
@@ -71,16 +67,16 @@ p.message { text-align:center; font-weight:bold; font-size:1.1rem; color:#ffd700
 
 <?php foreach($fosters as $f): ?>
 <tr>
-<td><?php echo htmlspecialchars($f['Aname']); ?></td>
+<td><?php echo htmlspecialchars($f['Aname'] ?? ''); ?></td>
 <td><?php echo htmlspecialchars($f['Species'] . ' / ' . $f['Animal_breed']); ?></td>
-<td><?php echo htmlspecialchars($f['full_name']); ?></td>
-<td><?php echo htmlspecialchars($f['date_of_birth']); ?></td>
+<td><?php echo htmlspecialchars($f['full_name'] ?? ''); ?></td>
+<td><?php echo htmlspecialchars($f['date_of_birth'] ?? ''); ?></td>
 <td><?php echo htmlspecialchars($f['phone'] . ' / ' . $f['email']); ?></td>
 <td><?php echo htmlspecialchars($f['address_street'] . ', ' . $f['address_city'] . ', ' . $f['address_province'] . ' ' . $f['address_postal_code']); ?></td>
 <td><?php echo htmlspecialchars($f['employment_status'] . ' / ' . $f['monthly_income']); ?></td>
 <td><?php echo htmlspecialchars($f['housing_type'] . ' / ' . ($f['has_fenced_yard'] ? 'Yes' : 'No')); ?></td>
 <td><?php echo htmlspecialchars($f['has_other_pets'] ? 'Yes: ' . $f['other_pets_details'] : 'No'); ?></td>
-<td><?php echo htmlspecialchars($f['reason']); ?></td>
+<td><?php echo htmlspecialchars($f['reason'] ?? ''); ?></td>
 <td>
 <?php 
 $status = $f['foster_status'];
@@ -94,7 +90,7 @@ else echo "<span class='status-pending'>Pending</span>";
 </table>
 <?php endif; ?>
 
-<a href="admin dashboard.php" class="back-btn"> Back to Dashboard</a>
+<a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </body>
 </html>

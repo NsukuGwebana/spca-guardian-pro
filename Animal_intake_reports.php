@@ -1,12 +1,11 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Handle form submission for filtering
 $whereClause = "is_deleted = 0"; // Only show non-deleted records
@@ -16,6 +15,7 @@ $health_filter = "";
 $date_from_filter = "";
 $date_to_filter = "";
 
+$whereParams = []; // values for the ? placeholders below
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $species_filter = $_POST['species'] ?? '';
     $status_filter = $_POST['status'] ?? '';
@@ -24,29 +24,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date_to_filter = $_POST['date_to'] ?? '';
     
     if (!empty($species_filter)) {
-        $whereClause .= " AND Species = '" . $conn->real_escape_string($species_filter) . "'";
+        $whereClause .= " AND Species = ?";
+        $whereParams[] = $species_filter;
     }
     
     if (!empty($status_filter)) {
-        $whereClause .= " AND status = '" . $conn->real_escape_string($status_filter) . "'";
+        $whereClause .= " AND status = ?";
+        $whereParams[] = $status_filter;
     }
     
     if (!empty($health_filter)) {
-        $whereClause .= " AND Health_status = '" . $conn->real_escape_string($health_filter) . "'";
+        $whereClause .= " AND Health_status = ?";
+        $whereParams[] = $health_filter;
     }
     
     if (!empty($date_from_filter)) {
-        $whereClause .= " AND Intake_date >= '" . $conn->real_escape_string($date_from_filter) . "'";
+        $whereClause .= " AND Intake_date >= ?";
+        $whereParams[] = $date_from_filter;
     }
     
     if (!empty($date_to_filter)) {
-        $whereClause .= " AND Intake_date <= '" . $conn->real_escape_string($date_to_filter) . "'";
+        $whereClause .= " AND Intake_date <= ?";
+        $whereParams[] = $date_to_filter;
     }
 }
 
 // Run query to get animal intake data
 $sql = "SELECT * FROM animals WHERE $whereClause ORDER BY Intake_date DESC, created_at DESC";
-$result = $conn->query($sql);
+$result = q($sql, $whereParams);
 
 // Get summary statistics
 $summarySql = "SELECT 
@@ -58,7 +63,7 @@ $summarySql = "SELECT
     COUNT(CASE WHEN status = 'Pending' THEN 1 END) as pending_count,
     COUNT(CASE WHEN status = 'Not Available' THEN 1 END) as not_available_count
     FROM animals WHERE $whereClause";
-$summaryResult = $conn->query($summarySql);
+$summaryResult = q($summarySql, $whereParams);
 $summary = $summaryResult->fetch_assoc();
 
 // Handle CSV export
@@ -77,7 +82,7 @@ if (isset($_POST['export_csv'])) {
     $exportSql = "SELECT id, Aname, Species, Animal_breed, Aage, Color, Kennel_status, 
                          Aweight, Width, Height, Health_status, Intake_date, status, treatment_status 
                   FROM animals WHERE $whereClause ORDER BY Intake_date DESC";
-    $exportResult = $conn->query($exportSql);
+    $exportResult = q($exportSql, $whereParams);
     
     while ($row = $exportResult->fetch_assoc()) {
         fputcsv($output, array(
@@ -106,7 +111,7 @@ if (isset($_POST['export_csv'])) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Animal Intake Reports</title>
+<title>Animal Intake Reports | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -290,8 +295,10 @@ td {
     color: #9ca3af;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Animal Intake Reports</h1>
     
@@ -353,23 +360,23 @@ td {
     <h2>Summary</h2>
     <div class="summary-cards">
         <div class="summary-card">
-            <div class="summary-value"><?= $summary['total_animals'] ?></div>
+            <div class="summary-value"><?= e($summary['total_animals']) ?></div>
             <div class="summary-label">Total Animals</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value"><?= $summary['healthy_count'] ?></div>
+            <div class="summary-value"><?= e($summary['healthy_count']) ?></div>
             <div class="summary-label">Healthy Animals</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value"><?= $summary['unhealthy_count'] ?></div>
+            <div class="summary-value"><?= e($summary['unhealthy_count']) ?></div>
             <div class="summary-label">Unhealthy Animals</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value"><?= $summary['available_count'] ?></div>
+            <div class="summary-value"><?= e($summary['available_count']) ?></div>
             <div class="summary-label">Available for Adoption</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value"><?= $summary['adopted_count'] ?></div>
+            <div class="summary-value"><?= e($summary['adopted_count']) ?></div>
             <div class="summary-label">Adopted</div>
         </div>
     </div>
@@ -395,20 +402,20 @@ td {
             <tbody>
                 <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td><?= htmlspecialchars($row['id']) ?></td>
-                    <td><?= htmlspecialchars($row['Aname']) ?></td>
-                    <td><?= htmlspecialchars($row['Species']) ?></td>
-                    <td><?= htmlspecialchars($row['Animal_breed']) ?></td>
-                    <td><?= htmlspecialchars($row['Aage']) ?></td>
-                    <td><?= htmlspecialchars($row['Color']) ?></td>
+                    <td><?= htmlspecialchars($row['id'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Aname'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Species'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Animal_breed'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Aage'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Color'] ?? '') ?></td>
                     <td class="health-<?= strtolower($row['Health_status']) ?>">
-                        <?= htmlspecialchars($row['Health_status']) ?>
+                        <?= htmlspecialchars($row['Health_status'] ?? '') ?>
                     </td>
-                    <td><?= htmlspecialchars($row['Intake_date']) ?></td>
+                    <td><?= htmlspecialchars($row['Intake_date'] ?? '') ?></td>
                     <td class="status-<?= strtolower(str_replace(' ', '-', $row['status'])) ?>">
-                        <?= htmlspecialchars($row['status']) ?>
+                        <?= htmlspecialchars($row['status'] ?? '') ?>
                     </td>
-                    <td><?= htmlspecialchars($row['treatment_status']) ?></td>
+                    <td><?= htmlspecialchars($row['treatment_status'] ?? '') ?></td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -419,7 +426,7 @@ td {
         </div>
     <?php endif; ?>
 
-    <a href="admin dashboard.php" class="back-btn"> Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </body>
 </html>

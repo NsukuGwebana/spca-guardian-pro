@@ -1,4 +1,7 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if (empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: regA.php'); exit; } // no animal chosen
 include_once "databaseConnection.php";
 $message = "";
 $appointments = [];
@@ -56,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update_stmt->close();
 
         $conn->commit();
+        log_activity('Recorded medical treatment', 'Animal #' . (int)($_POST['id'] ?? $_GET['id'] ?? 0));
         $message = "✅ Appointment and treatments successfully recorded.";
     } catch (Exception $e) {
         $conn->rollback();
@@ -91,10 +95,10 @@ if ($treat_result->num_rows > 0): ?>
         <tbody>
             <?php while ($t = $treat_result->fetch_assoc()): ?>
                 <tr>
-                    <td><?= htmlspecialchars($t['treatment_types']) ?></td>
-                    <td><?= htmlspecialchars($t['treatment_details']) ?></td>
+                    <td><?= htmlspecialchars($t['treatment_types'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($t['treatment_details'] ?? '') ?></td>
                     <td><?= htmlspecialchars($t['treatment_date'] ?? 'Pending') ?></td>
-                    <td><?= htmlspecialchars($t['recorded_by']) ?></td>
+                    <td><?= htmlspecialchars($t['recorded_by'] ?? '') ?></td>
                 </tr>
             <?php endwhile; ?>
         </tbody>
@@ -116,7 +120,7 @@ $vet_result = $conn->query("SELECT DISTINCT vet_id FROM appointments WHERE vet_i
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Medical Records</title>
+    <title>Update Medical Records | SPCA Guardian Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -246,21 +250,23 @@ $vet_result = $conn->query("SELECT DISTINCT vet_id FROM appointments WHERE vet_i
             color: #155724;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
     <h2><i class="fas fa-heartbeat"></i> Update Medical Records</h2>
     
     <section>
   <?php if (!empty($animal['animal_picture'])): ?>
-    <img src="<?= htmlspecialchars($animal['animal_picture']) ?>" alt="<?= htmlspecialchars($animal['Aname']) ?>">
+    <img src="<?= htmlspecialchars($animal['animal_picture'] ?? '') ?>" alt="<?= htmlspecialchars($animal['Aname'] ?? '') ?>">
   <?php else: ?>
-    <img src="Images/Logo.jpeg" alt="No image available">
+    <img src="Images/no-photo.svg" alt="No photo yet">
   <?php endif; ?>
 
   <div>
-    <h3><?= htmlspecialchars($animal['Aname']) ?> (ID: <?= $animal['id'] ?>)</h3>
-    <p><?= htmlspecialchars($animal['Species']) ?> | <?= htmlspecialchars($animal['Animal_breed']) ?> | <?= htmlspecialchars($animal['Aage']) ?> years</p>
-    <span class="status"><?= htmlspecialchars($animal['Health_status']) ?></span>
+    <h3><?= htmlspecialchars($animal['Aname'] ?? '') ?> (ID: <?= e($animal['id']) ?>)</h3>
+    <p><?= htmlspecialchars($animal['Species'] ?? '') ?> | <?= htmlspecialchars($animal['Animal_breed'] ?? '') ?> | <?= htmlspecialchars($animal['Aage'] ?? '') ?> years</p>
+    <span class="status"><?= htmlspecialchars($animal['Health_status'] ?? '') ?></span>
   </div>
 </section>
 
@@ -277,7 +283,7 @@ $vet_result = $conn->query("SELECT DISTINCT vet_id FROM appointments WHERE vet_i
   <option value="">-- Select Vet --</option>
   <?php
   while ($vet = $vet_result->fetch_assoc()) {
-      echo "<option value='{$vet['vet_id']}'>Vet ID: {$vet['vet_id']}</option>";
+      echo "<option value='" . e($vet['vet_id']) . "'>Vet ID: " . e($vet['vet_id']) . "</option>";
   }
   ?>
 </select>
@@ -328,7 +334,7 @@ $vet_result = $conn->query("SELECT DISTINCT vet_id FROM appointments WHERE vet_i
 
         <p class="buttons">
             <button type="submit"><i class="fas fa-save"></i> Save Record</button>
-            <a href="view_animalProfile.php?id=53" class="button"><i class="fas fa-arrow-left"></i> Back</a>
+            <a href="view_animalProfile.php?id=<?= (int)$animal_id ?>" class="button"><i class="fas fa-arrow-left"></i> Back</a>
         </p>
     </form>
 </body>

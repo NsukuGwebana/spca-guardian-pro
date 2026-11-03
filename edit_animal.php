@@ -1,8 +1,11 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if (empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: regA.php'); exit; } // no record chosen
 // Resume session and check access
-session_start();
+if (session_status() === PHP_SESSION_NONE) { if (session_status() === PHP_SESSION_NONE) { session_start(); } }
 if (!isset($_SESSION['access']) || $_SESSION['access'] !== "yes") {
-    header("Location: Newlogin.html"); 
+    header("Location: loginFormSysdev"); 
     exit();
 }
 
@@ -79,20 +82,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $success = true;
+        log_activity('Edited animal', 'Animal #' . (int)($_POST['id'] ?? $_GET['id'] ?? 0));
     } else {
-        $errorMsg = $stmt->error;
+        $errorMsg = "The changes couldn't be saved. Please try again.";
     }
 
     $stmt->close();
 }
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Edit Animal</title>
+<title>Edit Animal | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -178,74 +181,70 @@ img { max-width: 100px; margin-bottom: 10px; display: block; }
 .message { text-align: center; margin-top: 20px; font-size: 18px; color: green; }
 .error { text-align: center; margin-top: 20px; font-size: 18px; color: red; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
 <?php if($success): ?>
     <h1>✅ Animal Updated Successfully</h1>
     <p class="message">The animal details have been updated in the system.</p>
-    <a href="regA.php" class="back-btn">⬅ Back to Animals</a>
+    <a href="regA.php" class="back-btn">&larr; Back to animals</a>
 <?php else: ?>
     <h2>Edit Animal</h2>
     <?php if(isset($errorMsg)) echo "<p class='error'>Error updating animal: $errorMsg</p>"; ?>
     <form method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($animal['id']); ?>">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($animal['id'] ?? ''); ?>">
 
         <label>Name</label>
-        <input type="text" name="Aname" value="<?php echo htmlspecialchars($animal['Aname']); ?>" required>
+        <input type="text" name="Aname" value="<?php echo htmlspecialchars($animal['Aname'] ?? ''); ?>" required>
 
         <label>Species</label>
-        <input type="text" name="Species" value="<?php echo htmlspecialchars($animal['Species']); ?>" required>
+        <input type="text" name="Species" value="<?php echo htmlspecialchars($animal['Species'] ?? ''); ?>" required>
 
         <label>Breed</label>
-        <input type="text" name="Animal_breed" value="<?php echo htmlspecialchars($animal['Animal_breed']); ?>">
+        <input type="text" name="Animal_breed" value="<?php echo htmlspecialchars($animal['Animal_breed'] ?? ''); ?>">
 
         <label>Age</label>
-        <input type="number" step="0.1" name="Aage" value="<?php echo htmlspecialchars($animal['Aage']); ?>">
+        <input type="number" step="0.1" name="Aage" value="<?php echo htmlspecialchars($animal['Aage'] ?? ''); ?>">
 
-        <label>Color</label>
-        <input type="text" name="Color" value="<?php echo htmlspecialchars($animal['Color']); ?>">
+        <label>Colour</label>
+        <input type="text" name="Color" value="<?php echo htmlspecialchars($animal['Color'] ?? ''); ?>">
 
-        <label>Kennel Status</label>
-        <input type="text" name="Kennel_status" value="<?php echo htmlspecialchars($animal['Kennel_status']); ?>">
+        <input type="hidden" name="Kennel_status" value="<?php echo htmlspecialchars($animal['Kennel_status'] ?? ''); ?>">
 
-        <label>Weight (kg)</label>
-        <input type="number" step="0.01" name="Aweight" value="<?php echo htmlspecialchars($animal['Aweight']); ?>">
+        <input type="hidden" name="Aweight" value="<?php echo htmlspecialchars($animal['Aweight'] ?? ''); ?>">
 
-        <label>Width (cm)</label>
-        <input type="number" step="0.01" name="Width" value="<?php echo htmlspecialchars($animal['Width']); ?>">
+        <input type="hidden" name="Width" value="<?php echo htmlspecialchars($animal['Width'] ?? ''); ?>">
 
-        <label>Height (cm)</label>
-        <input type="number" step="0.01" name="Height" value="<?php echo htmlspecialchars($animal['Height']); ?>">
+        <input type="hidden" name="Height" value="<?php echo htmlspecialchars($animal['Height'] ?? ''); ?>">
 
-        <label>Health Status</label>
+        <label>Health</label>
         <select name="Health_status" required>
             <option value="Healthy" <?php if ($animal['Health_status']=='Healthy') echo 'selected'; ?>>Healthy</option>
-            <option value="Unhealthy" <?php if ($animal['Health_status']=='Unhealthy') echo 'selected'; ?>>Unhealthy</option>
+            <option value="Unhealthy" <?php if ($animal['Health_status']=='Unhealthy') echo 'selected'; ?>>Needs vet care</option>
         </select>
 
-        <label>Intake Date</label>
-        <input type="date" name="Intake_date" value="<?php echo htmlspecialchars($animal['Intake_date']); ?>">
+        <input type="hidden" name="Intake_date" value="<?php echo htmlspecialchars($animal['Intake_date'] ?? ''); ?>">
 
-        <label>Status</label>
+        <label>Adoption status</label>
         <select name="status" required>
             <option value="Available" <?php if ($animal['status']=='Available') echo 'selected'; ?>>Available</option>
             <option value="Pending" <?php if ($animal['status']=='Pending') echo 'selected'; ?>>Pending</option>
             <option value="Not Available" <?php if ($animal['status']=='Not Available') echo 'selected'; ?>>Not Available</option>
         </select>
 
-        <label>Animal Picture</label>
+        <label>Photo</label>
         <?php if (!empty($animal['animal_picture'])): ?>
-            <img src="<?php echo htmlspecialchars($animal['animal_picture']); ?>" alt="Animal Picture">
+            <img src="<?php echo htmlspecialchars($animal['animal_picture'] ?? ''); ?>" alt="Animal Picture">
         <?php endif; ?>
         <input type="file" name="animal_picture" accept="image/*">
 
-        <button type="submit" class="btn">Update Animal</button>
-        <a href="javascript:void(0);" class="back-btn" 
-   onclick="if (history.length > 1) { history.back(); } else { window.location.href='regA.php'; }">
-   ⬅ Cancel / Back
-</a>
+        <div class="btn-container">
+            <button type="submit" class="btn">Save changes</button>
+            <a href="regA.php" class="back-btn">&larr; Back to animals</a>
+        </div>
 
     </form>
 <?php endif; ?>

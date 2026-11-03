@@ -1,21 +1,9 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 // get_available_animals.php
 header('Content-Type: application/json');
 
-// DB connection - using your credentials
-$serverName = DB_HOST;
-$username   = DB_USER;
-$password   = DB_PASS;
-$database   = DB_NAME;
-
-$conn = new mysqli($serverName, $username, $password, $database);
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(["error" => "DB connection failed: " . $conn->connect_error]);
-    exit();
-}
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 // Fetch available healthy animals
 $animals = [];
@@ -33,11 +21,8 @@ if ($res) {
     }
 } else {
     http_response_code(500);
-    echo json_encode(["error" => "Query failed: " . $conn->error]);
-    $conn->close();
+    echo json_encode(["error" => "Query failed. Please try again."]);
     exit();
 }
-
-$conn->close();
 echo json_encode($animals);
 ?>

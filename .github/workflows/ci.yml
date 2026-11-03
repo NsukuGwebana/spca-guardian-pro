@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: sysmasters_test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: sysmasters_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli, mbstring
+          coverage: none
+
+      - name: Check every PHP file for syntax errors
+        run: |
+          find . -name '*.php' -not -path './vendor/*' -not -path './PHPMailer/*' -not -path './tcpdf/*' -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Install PHPUnit
+        run: composer install --no-interaction --no-progress
+
+      - name: Create the test database
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot sysmasters_test < database/schema.sql
+          for f in database/migrations/0*.sql; do
+            case "$f" in *sample_data*) continue;; esac
+            mysql -h 127.0.0.1 -uroot -proot sysmasters_test < "$f"
+          done
+          cp config.example.php config.php   # reads the DB_* settings above
+
+      - name: Unit and integration tests
+        run: vendor/bin/phpunit --testdox
+
+      - name: Smoke test public pages
+        run: |
+          php -S 127.0.0.1:8000 > server.log 2>&1 &
+          sleep 2
+          for page in Homepage.html Newlogin.html ForgotPasswordform.html track_adoption.php track_foster.php \
+                      adopt_form.php cruelty_report_form.php contact.html reset_password.php; do
+            code=$(curl -s -o page.html -w '%{http_code}' "http://127.0.0.1:8000/$page")
+            if [ "$code" != "200" ] || grep -qE 'Fatal error|Warning:|Parse error' page.html; then
+              echo "::error::$page returned $code"; cat page.html | head -40; exit 1
+            fi
+            echo "ok $page"
+          done
+          # Staff pages must send visitors to the login page
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/analytics.php)
+          [ "$code" = "302" ] || { echo "::error::analytics.php should redirect to login, got $code"; exit 1; }
+          # Forms from other websites are blocked
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Origin: https://evil.example' -d 'x=1' http://127.0.0.1:8000/message.php)
+          [ "$code" = "403" ] || { echo "::error::cross-site POST should be blocked, got $code"; exit 1; }
+          echo "ok security checks"

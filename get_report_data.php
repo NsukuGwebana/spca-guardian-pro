@@ -1,25 +1,14 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Show all errors for debugging purposes
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 // Set the content type to JSON
 header('Content-Type: application/json');
 
-// Database connection
-$serverName = DB_HOST;
-$username   = DB_USER;
-$password   = DB_PASS;
-$database   = DB_NAME;
+$conn = db();
 
-$conn = new mysqli($serverName, $username, $password, $database);
-
-// Check for connection error
-if ($conn->connect_error) {
-    echo json_encode(['error' => 'Database Connection failed: ' . $conn->connect_error]);
-    exit;
-}
 
 // Query to get the number of reports by animal type
 $animalQuery = "SELECT animal_type, COUNT(*) AS total_reports FROM cruelty_report GROUP BY animal_type";
@@ -27,7 +16,7 @@ $animalResult = $conn->query($animalQuery);
 
 // Check for SQL error or empty result
 if ($conn->error) {
-    echo json_encode(['error' => 'SQL Error: ' . $conn->error]);
+    echo json_encode(['error' => 'SQL Error. Please try again.']);
     exit;
 }
 
@@ -48,7 +37,7 @@ $crueltyResult = $conn->query($crueltyQuery);
 
 // Check for SQL error or empty result
 if ($conn->error) {
-    echo json_encode(['error' => 'SQL Error: ' . $conn->error]);
+    echo json_encode(['error' => 'SQL Error. Please try again.']);
     exit;
 }
 
@@ -70,7 +59,7 @@ $caseStatusResult = $conn->query($caseStatusQuery);
 
 // Check for SQL error or empty result
 if ($conn->error) {
-    echo json_encode(['error' => 'SQL Error: ' . $conn->error]);
+    echo json_encode(['error' => 'SQL Error. Please try again.']);
     exit;
 }
 
@@ -96,5 +85,4 @@ $response = [
 echo json_encode($response);
 
 // Close the connection
-$conn->close();
 ?>

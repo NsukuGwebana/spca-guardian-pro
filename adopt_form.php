@@ -1,17 +1,7 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/bootstrap.php';
 
-// DB connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
-
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 // Get selected animal
 $animal_id = isset($_GET['animal_id']) ? (int)$_GET['animal_id'] : 0;
@@ -29,35 +19,48 @@ $success = $error = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_adoption'])) {
     $animal_id = (int)$_POST['animal_id'];
     
-    // Handle ID upload
+    // Short form: the ID document is checked in person at the home visit, so no upload is needed
     $id_copy_path = "";
-    if (isset($_FILES['id_copy']) && $_FILES['id_copy']['error'] === UPLOAD_ERR_OK) {
-        $targetDir = "uploads/id_copy/";
-        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-        $fileName = time() . "_" . basename($_FILES["id_copy"]["name"]);
-        $id_copy_path = $targetDir . $fileName;
-        move_uploaded_file($_FILES["id_copy"]["tmp_name"], $id_copy_path);
-    } else {
-        $error = "You must upload a certified ID copy.";
+
+    if (!$error) {
+        $full_name          = trim($_POST['full_name'] ?? '');
+        $id_number          = trim($_POST['id_number'] ?? '');
+        $date_of_birth      = null;
+        $phone              = trim($_POST['phone'] ?? '');
+        $email              = trim($_POST['email'] ?? '');
+        $address_street     = '';
+        $address_city       = trim($_POST['address_city'] ?? '');
+        $address_province   = '';
+        $address_postal     = '';
+        $employment_status  = '';
+        $monthly_income     = null;
+        $housing_type       = $_POST['housing_type'] ?? 'House';
+        $has_fenced_yard    = isset($_POST['has_fenced_yard']) ? 1 : 0;
+        $has_other_pets     = isset($_POST['has_other_pets']) ? 1 : 0;
+        $other_pets_details = null;
+        $reason             = trim($_POST['reason'] ?? '');
+
+        // Check the answers before saving; every problem is listed at once.
+        $problems = [];
+        if (mb_strlen($full_name) < 3)               $problems[] = "Please enter your full name.";
+        if (!valid_identity_number($id_number))      $problems[] = "That ID number doesn't look right. Use your 13-digit SA ID number or your passport number.";
+        if (!valid_phone($phone))                    $problems[] = "Please enter a South African phone number, e.g. 082 123 4567.";
+        if ($email !== '' && !valid_email($email))   $problems[] = "Please check your email address.";
+        if ($address_city === '')                    $problems[] = "Please tell us which town or suburb you live in.";
+        if (!in_array($housing_type, ['House', 'Apartment', 'Farm', 'Other'], true)) $housing_type = 'Other';
+        if (!$problems && q("SELECT 1 FROM adoptions WHERE animal_id = ? AND id_number = ? AND status IN ('Pending','Home visit','Approved') LIMIT 1",
+                            [$animal_id, $id_number])->num_rows) {
+            $problems[] = "You already have an open application for this animal. You can track it on the website.";
+        }
+        // An SA ID number contains the date of birth (YYMMDD), so we don't need to ask for it.
+        if (!$problems && preg_match('/^\d{13}$/', $id_number)) {
+            $yy = (int)substr($id_number, 0, 2);
+            $date_of_birth = (($yy > (int)date('y')) ? '19' : '20') . substr($id_number, 0, 2) . '-' . substr($id_number, 2, 2) . '-' . substr($id_number, 4, 2);
+        }
+        if ($problems) $error = implode('<br>', array_map('e', $problems));
     }
 
     if (!$error) {
-        $full_name          = $_POST['full_name'];
-        $id_number          = $_POST['id_number'];
-        $date_of_birth      = $_POST['date_of_birth'] ?: null;
-        $phone              = $_POST['phone'];
-        $email              = $_POST['email'];
-        $address_street     = $_POST['address_street'];
-        $address_city       = $_POST['address_city'];
-        $address_province   = $_POST['address_province'];
-        $address_postal     = $_POST['address_postal_code'];
-        $employment_status  = $_POST['employment_status'];
-        $monthly_income     = $_POST['monthly_income'] ?: null;
-        $housing_type       = $_POST['housing_type'];
-        $has_fenced_yard    = isset($_POST['has_fenced_yard']) ? 1 : 0;
-        $has_other_pets     = isset($_POST['has_other_pets']) ? 1 : 0;
-        $other_pets_details = $has_other_pets ? $_POST['other_pets_details'] : null;
-        $reason             = $_POST['reason'];
 
         $stmt = $conn->prepare("INSERT INTO adoptions
             (animal_id, full_name, id_number, date_of_birth, phone, email, address_street, address_city, address_province, address_postal_code, employment_status, monthly_income, housing_type, has_fenced_yard, has_other_pets, other_pets_details, reason, id_copy)
@@ -90,8 +93,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_adoption'])) {
             $upd->execute();
             $upd->close();
             $success = "✅ Application submitted successfully! Your application will be reviewed within 3-5 business days. Please track your status on the website after the due period.";
+            $animalName = $animal['Aname'] ?? 'the animal';
+            log_activity('New adoption application', "$full_name for $animalName (#$animal_id)");
+            if ($email !== '') {
+                send_mail($email, "We received your adoption application",
+                    '<p>Dear ' . e($full_name) . ',</p><p>Thank you for applying to adopt <strong>' . e($animalName) . '</strong>. '
+                  . 'We will review your application within 3 to 5 working days and then contact you to arrange a home visit.</p>'
+                  . '<p>You can check progress any time on our website under <em>Track adoption</em>, using your ID number.</p>'
+                  . '<p>Kind regards,<br>SPCA Guardian Pro team</p>');
+            }
         } else {
-            $error = "Failed to save application: " . $stmt->error;
+            $error = "Sorry, we couldn't save your application. Please try again.";
         }
         $stmt->close();
     }
@@ -100,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_adoption'])) {
 <!DOCTYPE html>
 <html>
 <head>
-<title>Adoption Form</title>
+<title>Adoption Form | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -206,8 +218,10 @@ button[type=reset]:hover, .back-btn:hover {
 p.success { color: green; font-weight: bold; }
 p.error { color: red; font-weight: bold; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
 <div class="overlay">
 <div class="container">
 
@@ -216,7 +230,7 @@ p.error { color: red; font-weight: bold; }
     <?php if (!empty($animal['animal_picture']) && file_exists($animal['animal_picture'])): ?>
         <img src="<?php echo htmlspecialchars($animal['animal_picture']); ?>" alt="Animal Picture">
     <?php else: ?>
-        <p><i>No image available for this animal.</i></p>
+        <img src="Images/no-photo.svg" alt="No photo yet">
     <?php endif; ?>
 </div>
 <?php endif; ?>
@@ -225,83 +239,54 @@ p.error { color: red; font-weight: bold; }
 
 <?php if ($error): ?>
     <p class='error'><?php echo $error; ?></p>
-    <button class='back-btn' onclick='window.history.back()'>⬅ Back</button>
+    <a href="adoption_form.php" class="back-btn">&larr; Back to animals</a>
 <?php endif; ?>
 
 <?php if ($success): ?>
     <p class='success'><?php echo $success; ?></p>
-    <button class='back-btn' onclick="window.location.href='adoption_form.php'">Back to Animals</button>
+    <a href="adoption_form.php" class="back-btn">&larr; Back to animals</a>
 <?php endif; ?>
 
 <?php if ($animal && !$success): ?>
-<form method="post" action="" enctype="multipart/form-data">
-    <input type="hidden" name="animal_id" value="<?php echo $animal['id']; ?>">
+<form method="post" action="" >
+    <input type="hidden" name="animal_id" value="<?= e($animal['id']) ?>">
     <fieldset>
-         <strong style="font-size:18px;">Personal Details</strong><br><br>
+        <p class="form-intro">It takes about a minute. We'll call you to arrange a home visit, where we check your ID.</p>
 
-        <label>Full Name *</label>
-        <input type="text" name="full_name" required>
+        <label for="full_name">Full name *</label>
+        <input type="text" id="full_name" name="full_name" value="<?= e($_POST['full_name'] ?? '') ?>" autocomplete="name" required>
 
-        <label>ID Number / Passport: *</label>
-        <input type="text" name="id_number" required>
+        <label for="id_number">SA ID or passport number *</label>
+        <input type="text" id="id_number" name="id_number" value="<?= e($_POST['id_number'] ?? '') ?>" required>
 
-        <label>Date of Birth:</label>
-        <input type="date" name="date_of_birth">
+        <label for="phone">Phone number *</label>
+        <input type="tel" id="phone" name="phone" value="<?= e($_POST['phone'] ?? '') ?>" autocomplete="tel" required>
 
-        <label>Phone: *</label>
-        <input type="text" name="phone" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="<?= e($_POST['email'] ?? '') ?>" autocomplete="email">
 
-        <label>Email:</label>
-        <input type="email" name="email">
+        <label for="address_city">Town or suburb *</label>
+        <input type="text" id="address_city" name="address_city" value="<?= e($_POST['address_city'] ?? '') ?>" required>
 
-        <label>Street Address: *</label>
-        <input type="text" name="address_street" required>
-
-        <label>City: *</label>
-        <input type="text" name="address_city" required>
-
-        <label>Province/State: *</label>
-        <input type="text" name="address_province" required>
-
-        <label>Postal Code: *</label>
-        <input type="text" name="address_postal_code" required>
-
-        <label>Employment Status:*</label>
-        <select name="employment_status" required>
-            <option value="">-- Select --</option>
-            <option>Employed</option>
-            <option>Self-employed</option>
-            <option>Student</option>
-            <option>Unemployed</option>
-            <option>Retired</option>
-        </select>
-
-        <label>Monthly Income:</label>
-        <input type="number" step="0.01" name="monthly_income">
-
-        <label>Housing Type:</label>
-        <select name="housing_type">
+        <label for="housing_type">Where do you live?</label>
+        <select id="housing_type" name="housing_type">
             <option>House</option>
             <option>Apartment</option>
             <option>Farm</option>
             <option>Other</option>
         </select>
 
-        <label><input type="checkbox" name="has_fenced_yard"> Fenced Yard</label>
-        <label><input type="checkbox" name="has_other_pets"> Other Pets</label>
-        <label>Other Pets Details</label>
-        <input type="text" name="other_pets_details">
+        <div class="check-row">
+            <label><input type="checkbox" name="has_fenced_yard"> I have a fenced yard</label>
+            <label><input type="checkbox" name="has_other_pets"> I have other pets</label>
+        </div>
 
-        <label>Why do you want to adopt this animal?: *</label>
-        <textarea name="reason" required></textarea>
-
-        <label>Upload Certified ID:*</label>
-        <input type="file" name="id_copy" accept=".jpg,.jpeg,.png,.pdf" required><br><br>
+        <label for="reason">Why would you like to adopt this animal? *</label>
+        <textarea id="reason" name="reason" rows="3" required><?= e($_POST['reason'] ?? '') ?></textarea>
 
         <div class="button-container">
-            <button type="submit" name="submit_adoption">Submit Application</button><br><br>
-            <button type="reset">Reset</button>
-            <button type="button" class="back-btn" onclick="window.history.back()">Back</button>
+            <button type="submit" name="submit_adoption">Send application</button>
+            <a href="adoption_form.php" class="back-btn">&larr; Back to animals</a>
         </div>
     </fieldset>
 </form>

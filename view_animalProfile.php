@@ -1,23 +1,25 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if (empty($_GET['id'])) { header('Location: regA.php'); exit; } // no animal chosen
 // Include database connection
 include ("databaseConnection.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) { if (session_status() === PHP_SESSION_NONE) { session_start(); } }
 
 if(!isset($_SESSION['access']) || $_SESSION['access']!="yes"){
-    header("Location: Newlogin.html"); exit();
+    header("Location: loginFormSysdev"); exit();
 }
 // Get animal data
 $animal = null;
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $sql = "SELECT * FROM animals WHERE id = $id AND is_deleted = 0";
-    $result = $conn->query($sql);
+    $result = q("SELECT * FROM animals WHERE id = ? AND is_deleted = 0", [$id]);
     if ($result->num_rows > 0) {
         $animal = $result->fetch_assoc();
     }
     if (!$animal) {
-        die("Animal not found or has been removed.");
+        show_error_page(404, 'Animal not found', 'This animal may have been archived or removed.');
     }
    // Determine health status based on treatments
 $health_status = 'Unknown';
@@ -72,7 +74,7 @@ $companySlogan = "A Home For Every Animal ";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $animal['Aname']; ?> - Animal Profile</title>
+    <title><?= e($animal['Aname']) ?> - Animal Profile</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -307,8 +309,10 @@ $companySlogan = "A Home For Every Animal ";
             margin-top: 20px;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <div class="company-header">
         <h2><?php echo $companyName; ?></h2>
@@ -316,56 +320,54 @@ $companySlogan = "A Home For Every Animal ";
     </div>
     
     <div class="container">
-        <h2>Animal Profile - <?php echo $animal['Aname']; ?></h2>
+        <h2>Animal Profile - <?= e($animal['Aname']) ?></h2>
         
         <div class="animal-profile-card">
             <div class="profile-header">
-                <h3 class="animal-name"><?php echo $animal['Aname']; ?></h3>
-                <div class="animal-id">ID: #<?php echo $animal['id']; ?></div>
+                <h3 class="animal-name"><?= e($animal['Aname']) ?></h3>
+                <div class="animal-id">ID: #<?= e($animal['id']) ?></div>
             </div>
             
             <div class="profile-content">
                 <div class="animal-image">
                     <?php if (!empty($animal['animal_picture'])): ?>
-                        <img src="<?php echo $animal['animal_picture']; ?>" alt="<?php echo $animal['Aname']; ?>">
+                        <img src="<?php echo htmlspecialchars($animal['animal_picture']); ?>" alt="<?php echo htmlspecialchars($animal['Aname']); ?>" onerror="this.onerror=null;this.src='Images/no-photo.svg'">
                         <br><br>
-                        <a href="<?php echo $animal['animal_picture']; ?>" target="_blank">View Full Size Image</a>
+                        <a href="<?= e($animal['animal_picture']) ?>" target="_blank">View Full Size Image</a>
                     <?php else: ?>
-                        <div style="background: #ddd; width: 100%; height: 200px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #666; border: 3px solid #134f5c;">
-                            No Image Available
-                        </div>
+                        <img src="Images/no-photo.svg" alt="No photo yet">
                     <?php endif; ?>
                 </div>
                 
                 <div class="animal-details">
                     <div class="detail-item">
                         <strong>Species</strong>
-                        <span class="detail-value"><?php echo $animal['Species']; ?></span>
+                        <span class="detail-value"><?= e($animal['Species']) ?></span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Breed</strong>
-                        <span class="detail-value"><?php echo $animal['Animal_breed']; ?></span>
+                        <span class="detail-value"><?= e($animal['Animal_breed']) ?></span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Age</strong>
-                        <span class="detail-value"><?php echo $animal['Aage']; ?> years</span>
+                        <span class="detail-value"><?= e($animal['Aage']) ?> years</span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Color</strong>
-                        <span class="detail-value"><?php echo $animal['Color']; ?></span>
+                        <span class="detail-value"><?= e($animal['Color']) ?></span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Weight</strong>
-                        <span class="detail-value"><?php echo $animal['Aweight']; ?> kg</span>
+                        <span class="detail-value"><?= e($animal['Aweight']) ?> kg</span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Size</strong>
-                        <span class="detail-value"><?php echo $animal['Width']; ?>m × <?php echo $animal['Height']; ?>m</span>
+                        <span class="detail-value"><?= e($animal['Width']) ?>m × <?= e($animal['Height']) ?>m</span>
                     </div>
                     
                     <div class="detail-item">
@@ -383,24 +385,24 @@ $companySlogan = "A Home For Every Animal ";
                         <strong>Adoption Status</strong>
                         <span class="detail-value">
                             <span class="status-badge <?php echo ($animal['status'] == 'Available') ? 'status-available' : 'status-not-available'; ?>">
-                                <?php echo $animal['status']; ?>
+                                <?= e($animal['status']) ?>
                             </span>
                         </span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Intake Date</strong>
-                        <span class="detail-value"><?php echo $animal['Intake_date']; ?></span>
+                        <span class="detail-value"><?= e($animal['Intake_date']) ?></span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Registered On</strong>
-                        <span class="detail-value"><?php echo $animal['created_at']; ?></span>
+                        <span class="detail-value"><?= e($animal['created_at']) ?></span>
                     </div>
                     
                     <div class="detail-item">
                         <strong>Kennel Status</strong>
-                        <span class="detail-value"><?php echo $animal['Kennel_status']; ?></span>
+                        <span class="detail-value"><?= e($animal['Kennel_status']) ?></span>
                     </div>
                 </div>
             </div>
@@ -417,10 +419,10 @@ $companySlogan = "A Home For Every Animal ";
                 <!-- Appointment block -->
                 <div class="detail-item" style="margin-bottom:20px;">
                     <h4 style="margin-top:0; color:#134f5c;">
-                        Appointment on <?= htmlspecialchars($app['app_date']) ?> 
-                        (Vet ID: <?= htmlspecialchars($app['vet_id']) ?>)
+                        Appointment on <?= htmlspecialchars($app['app_date'] ?? '') ?> 
+                        (Vet ID: <?= htmlspecialchars($app['vet_id'] ?? '') ?>)
                     </h4>
-                    <p><strong>Reason:</strong> <?= htmlspecialchars($app['Reason']) ?></p>
+                    <p><strong>Reason:</strong> <?= htmlspecialchars($app['Reason'] ?? '') ?></p>
                     <p>
                         <strong>Status:</strong> 
                         <?php if ($app['app_status'] == 'Confirmed'): ?>
@@ -428,7 +430,7 @@ $companySlogan = "A Home For Every Animal ";
                         <?php else: ?>
                             <i class="fas fa-clock" style="color:red;"></i>
                         <?php endif; ?>
-                        <?= htmlspecialchars($app['app_status']) ?>
+                        <?= htmlspecialchars($app['app_status'] ?? '') ?>
                     </p>
 
                     <?php
@@ -453,7 +455,7 @@ $companySlogan = "A Home For Every Animal ";
                     <?php if (!empty($treatments_by_date)): ?>
                         <?php foreach ($treatments_by_date as $treat_date => $treatments): ?>
                             <h5 style="margin:15px 0 10px; color:#134f5c;">
-                                Treatment Details (<?= htmlspecialchars($treat_date) ?>)
+                                Treatment Details (<?= htmlspecialchars($treat_date ?? '') ?>)
                             </h5>
                             <table style="width:100%; border-collapse: collapse; margin-bottom:20px; background:#fff;">
                                 <thead style="background-color: #003366; color: white;">
@@ -466,9 +468,9 @@ $companySlogan = "A Home For Every Animal ";
                                 <tbody>
                                     <?php foreach ($treatments as $t): ?>
                                         <tr>
-                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['treatment_types']) ?></td>
-                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['treatment_details']) ?></td>
-                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['recorded_by']) ?></td>
+                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['treatment_types'] ?? '') ?></td>
+                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['treatment_details'] ?? '') ?></td>
+                                            <td style="padding: 8px; border: 1px solid #ccc;"><?= htmlspecialchars($t['recorded_by'] ?? '') ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -495,8 +497,8 @@ $companySlogan = "A Home For Every Animal ";
         </div>
         
         <div class="button-container">
-            <a href='regA.php'><button type='button'>Back to Animal Profiles</button></a>
-            <a href='admin dashboard.php'><button type='button'>Back to Dashboard</button></a>
+            <a href="regA.php" class="back-btn">&larr; Back to animals</a>
+            <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
            
             <button type="button" onclick="window.print()">Print Profile</button>
 

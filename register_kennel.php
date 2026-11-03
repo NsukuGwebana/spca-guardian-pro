@@ -1,8 +1,8 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 
 <?php
 // register_kennel.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require_once "databaseConnection.php";
 ?>
@@ -10,7 +10,7 @@ require_once "databaseConnection.php";
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Kennel Registration Status</title>
+<title>Kennel Registration Status | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -83,8 +83,10 @@ p, strong {
     background: #3d8a95;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
 <?php
@@ -100,12 +102,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                VALUES (?, ?, ?, ?, ?, NOW())");
         
         if (!$stmt) {
-            throw new Exception("Database preparation failed: " . $conn->error);
+            throw new Exception("Database preparation failed. Please try again.");
         }
         
         $stmt->bind_param("sdsss", $kennel_name, $max_width, $max_height, $status, $notes);
         
         if ($stmt->execute()) {
+            log_activity('Added kennel', $kennel_name);
             echo "<h2>KENNEL REGISTERED SUCCESSFULLY!</h2>";
             echo "<strong>Kennel Name:</strong> $kennel_name";
             echo "<strong>Maximum Width:</strong> $max_width meters";
@@ -116,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo "<strong>Notes:</strong> $notes";
             }
         } else {
-            throw new Exception("Database execution failed: " . $stmt->error);
+            throw new Exception("Database execution failed. Please try again.");
         }
         
         $stmt->close();
@@ -131,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
     <br>
     <a href='register_kennel.html' class="back-btn"> Register Another Kennel</a>
-    <a href='admin dashboard.php' class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </div>
 </body>

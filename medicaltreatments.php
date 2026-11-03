@@ -1,4 +1,6 @@
-<?php 
+<?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in 
 include ('databaseConnection.php');
 
 $vet_id = null; 
@@ -127,7 +129,7 @@ if (!empty($app_id)) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Log Medical Treatment</title>
+  <title>Log Medical Treatment | SPCA Guardian Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
@@ -173,8 +175,10 @@ section {
     .back-btn { background: #60a5b3; margin-left: 10px; }
     .back-btn:hover { background: #3d8a95; }
   </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <section>
 <article>
   <h2><i class="fas fa-notes-medical"></i> Log Medical Treatment</h2>
@@ -184,8 +188,8 @@ section {
     <select name="app_id" required onchange="this.form.submit()">
       <option value="">-- Select Appointment --</option>
       <?php foreach ($appointments as $app): ?>
-        <option value="<?= $app['app_id'] ?>" <?= (!empty($_POST['app_id']) && $_POST['app_id'] == $app['app_id']) ? 'selected' : '' ?>>
-          <?= $app['app_id'] ?> - <?= htmlspecialchars($app['Aname']) ?>
+        <option value="<?= e($app['app_id']) ?>" <?= (!empty($_POST['app_id']) && $_POST['app_id'] == $app['app_id']) ? 'selected' : '' ?>>
+          <?= e($app['app_id']) ?> - <?= htmlspecialchars($app['Aname']) ?>
         </option>
       <?php endforeach; ?>
     </select>
@@ -211,7 +215,7 @@ section {
     <?php endif; ?>
 
     <button type="submit" class="btn"><i class="fas fa-save"></i> Save Treatment</button>
-<a href="vetDashboard.php" class="btn back-btn"><i></i> Back</a>
+<a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 
   </form>
 </article>

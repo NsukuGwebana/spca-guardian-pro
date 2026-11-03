@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 exit(); // Always call exit() after a header redirect
             } else {
                 // If there's an error, display it
-                echo "Error: " . $stmt->error;
+                echo "Error. Please try again.";
             }
 
             $stmt->close();
@@ -34,5 +34,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 // Close the connection
-$conn->close();
 ?>

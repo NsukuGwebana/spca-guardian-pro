@@ -1,6 +1,10 @@
 # Real credentials: copy config.example.php to config.php locally
 config.php
 
+# Hosting-only files with private details (kept out of GitHub)
+INFINITYFREE.md
+database/infinityfree_sample_data.sql
+
 # User uploads (animal photos, ID copies) - private, never commit
 uploads/*
 !uploads/.gitkeep
@@ -10,6 +14,15 @@ uploads/id_copy/*
 !uploads/id_copies/
 uploads/id_copies/*
 !uploads/id_copies/.gitkeep
+
+# Error log written by the app
+logs/*.log
+
+# Tooling
+vendor/
+composer.lock
+.phpunit.result.cache
+.phpunit.cache/
 
 # OS and editor files
 Thumbs.db

@@ -1,8 +1,10 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Animal Registration Success</title>
+    <title>Animal Registration Success | SPCA Guardian Pro</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -224,14 +226,14 @@
             background: #3d8a95;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
 <?php
 // register_animal.php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Start output buffering
 ob_start();
@@ -259,11 +261,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $Aage = $_POST['Aage'] ?? 0;
     $Color = $_POST['Color'] ?? '';
-    $Aweight = $_POST['Aweight'] ?? 0;
-    $Width = $_POST['width'] ?? 0;
-    $Height = $_POST['height'] ?? 0;
+    $Aweight = $_POST['Aweight'] ?? null; // optional, not on the short form
+    // The short form asks for a size; it is turned into the width and height used for kennel allocation
+    $sizes = ['Small' => [0.4, 0.4], 'Medium' => [0.8, 0.7], 'Large' => [1.2, 1.0]];
+    $size = $_POST['size'] ?? '';
+    $Width = isset($sizes[$size]) ? $sizes[$size][0] : ($_POST['width'] ?? 0);
+    $Height = isset($sizes[$size]) ? $sizes[$size][1] : ($_POST['height'] ?? 0);
     $Health_status = $_POST['Health_status'] ?? '';
-    $Intake_date = $_POST['Intake_date'] ?? '';
+    $Intake_date = !empty($_POST['Intake_date']) ? $_POST['Intake_date'] : date('Y-m-d'); // today unless given
     
     // Set status based on health status
     // Get status from form submission
@@ -297,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
         if (!$stmt) {
-            throw new Exception("Database preparation failed: " . $conn->error);
+            throw new Exception("Database preparation failed. Please try again.");
         }
 
         $stmt->bind_param(
@@ -308,6 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $animalId = $stmt->insert_id;
+            log_activity('Registered animal', "$Aname (#$animalId)");
             
             // ANIMAL PROFILE SUCCESS MESSAGE
             echo "<div class='success-message'>";
@@ -403,7 +409,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
         } else {
-            throw new Exception("Database execution failed: " . $stmt->error);
+            throw new Exception("Database execution failed. Please try again.");
         }
 
         $stmt->close();
@@ -424,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 echo "<div class='button-container'>";
 echo "<a href='register_animal.html'><button>Register Another Animal</button></a>";
-echo "<a href='admin dashboard.php'><button class='button-secondary'>Back to Dashboard</button></a>";
+echo "<a href='dashboard.php' class='back-btn'>&larr; Back to dashboard</a>";
 echo "</div>";
 
 // Flush output buffer

@@ -1,3 +1,5 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -288,28 +290,19 @@
             margin-top: 20px;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
     <div class="overlay">
         <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
         // Enable error reporting for debugging
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
-
-        // Database connection details
-        $server = DB_HOST;
-        $user = DB_USER;
-        $pass = DB_PASS;
-        $db = DB_NAME;
 
         // Create connection
-        $conn = new mysqli($server, $user, $pass, $db);
+        $conn = db();
 
         // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
 
         // Initialize variables
         $email = "";
@@ -341,7 +334,7 @@ require_once __DIR__ . '/config.php';
                 ");
                 
                 if ($stmt_volunteer === false) {
-                    $message = "Error preparing main volunteer query: " . $conn->error;
+                    $message = "Error preparing main volunteer query. Please try again.";
                     $message_type = "error";
                 } else {
                     $stmt_volunteer->bind_param("ss", $email, $id_number);
@@ -365,7 +358,7 @@ require_once __DIR__ . '/config.php';
                         ");
                         
                         if ($activity_stmt === false) {
-                            $message = "Error preparing activity query: " . $conn->error;
+                            $message = "Error preparing activity query. Please try again.";
                             $message_type = "error";
                         } else {
                             $activity_stmt->bind_param("s", $email_to_query);
@@ -404,7 +397,7 @@ require_once __DIR__ . '/config.php';
                         ");
 
                         if ($summary_stmt_ce === false) {
-                            $message = "Error preparing community engagement summary query: " . $conn->error;
+                            $message = "Error preparing community engagement summary query. Please try again.";
                             $message_type = "error";
                         } else {
                             $summary_stmt_ce->bind_param("s", $email_to_query);
@@ -431,7 +424,6 @@ require_once __DIR__ . '/config.php';
                 $message_type = "error";
             }
         }
-        $conn->close();
         ?>
         <div class="container">
             <header>
@@ -547,7 +539,7 @@ require_once __DIR__ . '/config.php';
             </div>
             
             <div class="footer-links">
-<button class="back-btn" onclick="history.back()">Back</button>
+<a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
                 
                 <a href="Community.html" class="footer-link">Submit New Activity</a>
             </div>

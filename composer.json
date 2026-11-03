@@ -1,0 +1,20 @@
+{
+    "name": "sysmasters/spca-guardian-pro",
+    "description": "SPCA Guardian Pro: animal shelter management system (PHP + MySQL).",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "ext-mysqli": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

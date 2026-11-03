@@ -1,12 +1,10 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator', 'Vet', 'Volunteer']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 header('Content-Type: application/json');
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    echo json_encode(["count" => 0, "notifications" => []]);
-    exit;
-}
 
 $sql = "
     (SELECT 'New adoption request' as msg, created_at as date FROM adoptions ORDER BY created_at DESC LIMIT 3)

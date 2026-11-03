@@ -1,17 +1,7 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/bootstrap.php';
 
-// DB connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
-
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 $application = null;
 $message = "";
@@ -36,14 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $stmt->close();
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Track Foster Application</title>
+    <title>Track Foster Application | SPCA Guardian Pro</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -130,8 +118,10 @@ $conn->close();
         }
         .back-btn:hover { background: #3b82f6; }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
 <div class="overlay">
     <div class="tracking-box">
         <h1>Track Your Foster Application</h1>
@@ -153,7 +143,7 @@ $conn->close();
         <?php endif; ?>
 
         
-        <a href="Homepage.html" class="back-btn"> Back </a>
+        <a href="Homepage.html" class="back-btn">&larr; Back to home</a>
     </div>
 </div>
 </body>

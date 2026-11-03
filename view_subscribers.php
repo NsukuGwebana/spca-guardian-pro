@@ -1,26 +1,23 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Check if search parameter is provided
 $search = "";
 if (isset($_GET['search']) && !empty($_GET['search'])) {
-    $search = $conn->real_escape_string($_GET['search']);
+    $search = trim($_GET['search']);
 }
 
 // Run query to get subscribers with optional search
-$sql = "SELECT * FROM spca_subscribers";
-if (!empty($search)) {
-    $sql .= " WHERE email LIKE '%$search%'";
+if ($search !== '') {
+    $result = q("SELECT * FROM spca_subscribers WHERE email LIKE ? ORDER BY subscription_date DESC", ['%' . $search . '%']);
+} else {
+    $result = q("SELECT * FROM spca_subscribers ORDER BY subscription_date DESC");
 }
-$sql .= " ORDER BY subscription_date DESC";
-
-$result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -136,8 +133,10 @@ td {
     font-style: italic;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>SPCA Newsletter Subscribers</h1>
 
@@ -188,7 +187,7 @@ td {
         </p>
     <?php endif; ?>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </body>
 </html>

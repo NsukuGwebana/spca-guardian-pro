@@ -115,80 +115,64 @@
       margin-top: 10px;
     }
   </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
   <div class="overlay">
     <div class="container">
-      <h2>Community Engagement Form</h2>
+      <h2>Log volunteer hours</h2>
 
       <fieldset>
         <form action="Community.php" method="POST">
-          <b>Personal Details</b><br><br>
+          <p class="form-intro">Log the time you spent helping at the shelter.</p>
 
-          <label>Full Name: </label>
-          <input type="text" name="volunteer_Fname" required>
+          <div class="two-col">
+            <div><label for="volunteer_Fname">First name *</label>
+            <input type="text" id="volunteer_Fname" name="volunteer_Fname" autocomplete="given-name" required></div>
+            <div><label for="volunteer_Lname">Surname *</label>
+            <input type="text" id="volunteer_Lname" name="volunteer_Lname" autocomplete="family-name" required></div>
+          </div>
 
-          <label>Full Surname:</label>
-          <input type="text" name="volunteer_Lname" required>
+          <label for="contact_number">Phone number *</label>
+          <input type="tel" id="contact_number" name="contact_number" autocomplete="tel" placeholder="e.g. 072 123 4567" required>
 
-          <label>Contact Number: </label>
-          <input type="tel" name="contact_number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="041-456-8986" required>
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
 
-          <label>Email:</label>
-          <input type="email" name="email" placeholder="nsuku@gmail.com" required>
-
-          <label>Date: </label>
-          <input type="date" name="date" required><br><br>
-
-          <b>Activity Details</b><br><br>
-          <label>Activity Type: </label>
+          <label for="activity_type">What did you do? *</label>
           <select name="activities_name" id="activity_type" required>
-            <option value="#">-- Select type--</option>
-            <option value="Fostering">Foster</option>
-            <option value="Walking">Walk</option>
-            <option value="Feeding">Feed</option>
-            <option value="Visiting">Visit</option>
-            <option value="Hyygiene Assistance">Hygiene</option>
+            <option value="">Choose an activity</option>
+            <option value="Walking">Walking dogs</option>
+            <option value="Feeding">Feeding</option>
+            <option value="Hygiene Assistance">Cleaning and hygiene</option>
+            <option value="Visiting">Visiting and socialising</option>
+            <option value="Fostering">Fostering</option>
             <option value="Fundraising">Fundraising</option>
-            <option value="Other">Other</option>
+            <option value="Other">Something else</option>
           </select>
 
-          <!-- Hidden input for 'Other' option -->
           <div id="other_activity_field">
-            <label>Please specify if other:</label>
-            <input type="text" name="other_activity">
+            <label for="other_activity">Tell us what you did</label>
+            <input type="text" id="other_activity" name="other_activity">
           </div>
 
-          <label>Activity Description:</label>
-          <textarea name="activity_description"></textarea>
+          <label for="date">Date *</label>
+          <input type="date" id="date" name="date" required>
 
-          <b>Time Tracking</b><br><br>
-          <label>Start time: </label>
-          <input type="time" name="start_time" id="start_time" required>
-
-          <label>End time: </label>
-          <input type="time" name="end_time" id="end_time" required>
-
-          <label>Time lapsed:</label>
-          <input type="text" name="lapse_time" id="elapsed_time" readonly>
-
-          <b>Supervisor Details</b><br><br>
-          <label>Supervisor Name:</label>
-          <input type="text" name="supervisor_name">
-
-          <label>Supervisor Surname:</label>
-          <input type="text" name="supervisor_surname">
+          <div class="two-col">
+            <div><label for="start_time">From *</label>
+            <input type="time" name="start_time" id="start_time" required></div>
+            <div><label for="end_time">To *</label>
+            <input type="time" name="end_time" id="end_time" required></div>
+          </div>
+          <input type="hidden" name="lapse_time" id="elapsed_time">
 
           <div class="button-container">
-            <button type="submit" class="btn">Submit</button>
-            <button type="reset" class="btn reset-btn">Reset Form</button>
+            <button type="submit" class="btn">Log my hours</button>
+            <a href="Homepage.html" class="back-btn">&larr; Back to home</a>
           </div>
         </form>
-        
-        <!-- Back Button -->
-        <button class="back-btn" onclick="if (history.length > 1) { history.back(); } else { window.location.href='regA.php'; }">
-          Back
-        </button>
       </fieldset>
     </div>
   </div>

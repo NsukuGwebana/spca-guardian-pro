@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cruelty Reports Over Time</title>
+    <title>Cruelty Reports Over Time | SPCA Guardian Pro</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
         body {
@@ -132,8 +132,10 @@
             border-radius: 8px;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
 <div class="overlay">
     <h1>Cruelty Reports Over Time</h1>
     
@@ -170,7 +172,7 @@
         <div id="curve_chart"></div>
     </div>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <script type="text/javascript">
@@ -256,5 +258,6 @@
         fetchData();  // Load data initially
     };
 </script>
+<script src="csrf.js"></script>
 </body>
 </html>

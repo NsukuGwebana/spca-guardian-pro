@@ -1,4 +1,6 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 require_once 'databaseConnection.php';
 
 $view_animal_id = isset($_GET['animal_id']) ? intval($_GET['animal_id']) : 0;
@@ -52,7 +54,7 @@ if (!$existing_vet_id) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Schedule Appointment</title>
+  <title>Schedule Appointment | SPCA Guardian Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
    html, body {
@@ -188,8 +190,10 @@ input, select, textarea {
 .badge.completed  { background: #27ae60; }
 .badge.scheduled  { background: #2980b9; }
   </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <section class="overlay">
   <article class="container">
     <h2><i class="fas fa-calendar-plus"></i> Schedule Appointment</h2>
@@ -221,7 +225,7 @@ input, select, textarea {
               $message = "✅ The appointment has been scheduled successfully and its status is set to <strong>Scheduled</strong>.";
               $message_class = "success";
           } else {
-              $message = 'Error saving appointment: ' . $stmt->error;
+              $message = 'Error saving appointment. Please try again.';
               $message_class = 'error';
           }
         }
@@ -252,8 +256,8 @@ input, select, textarea {
             <select name="animal_id" required>
               <option value="">-- Select Animal --</option>
               <?php foreach ($animals as $a): ?>
-                <option value="<?= $a['id'] ?>" <?= ($view_animal_id == $a['id']) ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($a['Aname']) ?> (ID: <?= $a['id'] ?>)
+                <option value="<?= e($a['id']) ?>" <?= ($view_animal_id == $a['id']) ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($a['Aname']) ?> (ID: <?= e($a['id']) ?>)
                 </option>
               <?php endforeach; ?>
            </select>
@@ -282,15 +286,14 @@ input, select, textarea {
         </fieldset>
 
         <button type="submit" class="btn"><i class="fas fa-save"></i> Save Appointment</button>
-        <a href="vetDashboard.php" class="btn back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
       </form>
 
       <!-- ✅ Show Treatments as Code-Block Style Cards -->
       <?php
       if ($view_animal_id > 0) {
           $treatments = $conn->prepare("
-              SELECT t.treatment_types AS treatment_type, t.treatment_status AS status,
-                     t.treatment_date, t.treatment_details AS details
+              SELECT t.treatment_type, t.status, t.treatment_date, t.details
               FROM treatments t
               INNER JOIN appointments a ON t.app_id = a.app_id
               WHERE a.animal_id = ?

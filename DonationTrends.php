@@ -1,13 +1,13 @@
 <?php
-require_once __DIR__ . '/config.php';
-session_start();
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
+if (session_status() === PHP_SESSION_NONE) { if (session_status() === PHP_SESSION_NONE) { session_start(); } }
 
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
+$latestDonationYear = $conn->query("SELECT MAX(YEAR(ddate)) AS y FROM donations")->fetch_assoc()['y'] ?? date('Y'); // reports open on the latest year with data
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Handle filter reset
 if (isset($_GET['reset_filters']) && $_GET['reset_filters'] == 1) {
@@ -20,14 +20,14 @@ if (isset($_GET['reset_filters']) && $_GET['reset_filters'] == 1) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['donation_filters'] = [
         'time_period' => $_POST['time_period'] ?? 'monthly',
-        'year' => $_POST['year'] ?? date('Y'),
+        'year' => $_POST['year'] ?? $latestDonationYear,
         'dtype' => $_POST['dtype'] ?? ''
     ];
 }
 
 // Use session filters or defaults
 $time_period = $_SESSION['donation_filters']['time_period'] ?? 'monthly';
-$year_filter = $_SESSION['donation_filters']['year'] ?? date('Y');
+$year_filter = $_SESSION['donation_filters']['year'] ?? $latestDonationYear;
 $dtype_filter = $_SESSION['donation_filters']['dtype'] ?? '';
 
 // Get available years for filter dropdown
@@ -56,11 +56,14 @@ if ($time_period == 'monthly') {
 }
 
 $whereClause = "1=1";
+$whereParams = []; // values for the ? placeholders
 if (!empty($year_filter)) {
-    $whereClause .= " AND YEAR(ddate) = " . intval($year_filter);
+    $whereClause .= " AND YEAR(ddate) = ?";
+    $whereParams[] = (int)$year_filter;
 }
 if (!empty($dtype_filter)) {
-    $whereClause .= " AND dtype = '" . $conn->real_escape_string($dtype_filter) . "'";
+    $whereClause .= " AND dtype = ?";
+    $whereParams[] = (string)$dtype_filter;
 }
 
 $sql = "SELECT 
@@ -72,7 +75,7 @@ $sql = "SELECT
         GROUP BY $groupBy 
         ORDER BY period";
 
-$result = $conn->query($sql);
+$result = q($sql, $whereParams);
 
 $donationData = array();
 while ($row = $result->fetch_assoc()) {
@@ -88,7 +91,7 @@ $summarySql = "SELECT
                 MIN(damount) as min_amount
             FROM donations 
             WHERE $whereClause";
-$summaryResult = $conn->query($summarySql);
+$summaryResult = q($summarySql, $whereParams);
 $summary = $summaryResult->fetch_assoc();
 
 // Store report data in session for potential export functionality
@@ -107,7 +110,7 @@ $_SESSION['last_report_data'] = [
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Donation Trends Report</title>
+<title>Donation Trends Report | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -280,8 +283,10 @@ h1, h2 {
     color: #f87171;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Donation Trends Report</h1>
     
@@ -378,7 +383,7 @@ h1, h2 {
             ?>
             <tr>
                 <td><?= htmlspecialchars($data['period']) ?></td>
-                <td><?= $data['donation_count'] ?></td>
+                <td><?= e($data['donation_count']) ?></td>
                 <td class="<?= $trendClass ?>">R<?= number_format($data['total_amount'], 2) ?></td>
                 <td>R<?= number_format($average, 2) ?></td>
             </tr>
@@ -392,7 +397,7 @@ h1, h2 {
         </tbody>
     </table>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <!-- Load Google Charts -->
@@ -485,5 +490,4 @@ window.addEventListener('resize', drawChart);
 </body>
 </html>
 <?php 
-$conn->close(); 
 ?>

@@ -1,0 +1,192 @@
+/* SPCA Guardian Pro shared theme
+   Loaded last on every form and list page so the whole system looks and behaves the same.
+   Colours, font and sizes live in the tokens below; change them here to restyle every page. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+  --spca-teal: #134f5c;        /* brand colour: headers, primary buttons */
+  --spca-teal-dark: #0d3c46;
+  --spca-teal-soft: #e6eff1;   /* tints, table hover */
+  --spca-ink: #1d2f33;         /* body text */
+  --spca-muted: #5b6e72;
+  --spca-line: #cfdcdf;
+  --spca-bg: #f3f7f8;
+  --spca-card: #ffffff;
+  --spca-good: #1f8a4c;
+  --spca-bad: #c0392b;
+  --spca-radius: 10px;
+  --spca-font: "Poppins", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+/* ---------- Type ---------- */
+body.spca, body.spca input, body.spca select, body.spca textarea, body.spca button, body.spca table {
+  font-family: var(--spca-font);
+}
+body.spca { color: var(--spca-ink); }
+body.spca h1, body.spca h2 { color: var(--spca-teal); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+body.spca h2 { font-size: 1.6rem; margin: 0 0 6px; }
+
+/* ---------- Form layout ---------- */
+body.spca form label {
+  display: block; font-weight: 600; font-size: 0.92rem; color: var(--spca-ink);
+  margin: 14px 0 6px;
+}
+body.spca form .check-row label,
+body.spca form label:has(> input[type=checkbox]),
+body.spca form label:has(> input[type=radio]) {
+  display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 8px 0;
+}
+body.spca .form-intro { color: var(--spca-muted); font-size: 0.95rem; margin: 0 0 6px; line-height: 1.5; }
+body.spca .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+body.spca .two-col > div { min-width: 0; }
+@media (max-width: 560px) { body.spca .two-col { grid-template-columns: 1fr; } }
+
+/* ---------- Inputs ---------- */
+body.spca form input[type=text], body.spca form input[type=email], body.spca form input[type=tel],
+body.spca form input[type=number], body.spca form input[type=date], body.spca form input[type=time],
+body.spca form input[type=password], body.spca form input[type=search], body.spca form input[type=file],
+body.spca form select, body.spca form textarea {
+  display: block; width: 100%; box-sizing: border-box;
+  padding: 11px 13px; font-size: 0.97rem; line-height: 1.35;
+  color: var(--spca-ink); background: #fff;
+  border: 1.5px solid var(--spca-line); border-radius: var(--spca-radius);
+  margin: 0; box-shadow: none; transition: border-color .15s, box-shadow .15s;
+}
+body.spca form input[type=file] { padding: 8px; }
+body.spca form textarea { min-height: 96px; resize: vertical; }
+body.spca form input:focus, body.spca form select:focus, body.spca form textarea:focus {
+  outline: none; border-color: var(--spca-teal); box-shadow: 0 0 0 3px rgba(19, 79, 92, 0.18);
+}
+body.spca form input[type=checkbox], body.spca form input[type=radio] { width: 18px; height: 18px; accent-color: var(--spca-teal); margin: 0; }
+
+/* ---------- Buttons ---------- */
+body.spca .button-container, body.spca .btn-container, body.spca .btn-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 12px;
+  margin: 24px 0 4px; text-align: left;
+}
+body.spca form button[type=submit], body.spca .btn-primary,
+body.spca form .btn:not(.back-btn):not(.reset-btn):not(.danger) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--spca-teal); color: #fff; border: 0; border-radius: var(--spca-radius);
+  padding: 12px 22px; font-size: 0.97rem; font-weight: 600; text-decoration: none;
+  cursor: pointer; transform: none; box-shadow: none; width: auto; margin: 0;
+}
+body.spca form button[type=submit]:hover, body.spca .btn-primary:hover,
+body.spca form .btn:not(.back-btn):not(.reset-btn):not(.danger):hover { background: var(--spca-teal-dark); transform: none; }
+
+/* Every Back button looks the same: outlined, arrow first */
+body.spca .back-btn, body.spca a.back-btn, body.spca button.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: var(--spca-teal);
+  border: 1.5px solid var(--spca-teal); border-radius: var(--spca-radius);
+  padding: 10px 18px; font-size: 0.95rem; font-weight: 600; text-decoration: none;
+  cursor: pointer; transform: none; box-shadow: none; width: auto; margin: 0;
+}
+body.spca .back-btn:hover { background: var(--spca-teal-soft); color: var(--spca-teal-dark); transform: none; }
+body.spca .back-row { margin: 0 0 16px; }
+
+body.spca form button[type=reset], body.spca .reset-btn { display: none; } /* "Reset" buttons removed: easy to hit by accident */
+
+body.spca :focus-visible { outline: 3px solid rgba(19, 79, 92, 0.45); outline-offset: 2px; }
+
+/* ---------- Tables ---------- */
+body.spca table { border-collapse: collapse; width: 100%; background: #fff; }
+body.spca table th {
+  background: var(--spca-teal); color: #fff; font-weight: 600; font-size: 0.86rem;
+  text-align: left; padding: 11px 12px; letter-spacing: 0.01em;
+}
+body.spca table td { padding: 10px 12px; border-bottom: 1px solid #e4ecee; font-size: 0.92rem; vertical-align: middle; }
+body.spca table tbody tr:hover td { background: #f6fafb; }
+body.spca .table-wrap, body.spca .table-container { overflow-x: auto; }
+
+/* ---------- Messages ---------- */
+body.spca .success, body.spca .alert-success, body.spca p.success {
+  background: #e8f5ee; color: #1b5e38; border: 1px solid #b9dfc8; border-radius: var(--spca-radius); padding: 12px 14px;
+}
+body.spca .error, body.spca .alert-error, body.spca .alert-danger, body.spca p.error {
+  background: #fdecea; color: #8e2a20; border: 1px solid #f3c2bc; border-radius: var(--spca-radius); padding: 12px 14px;
+}
+
+/* ---------- Images ---------- */
+body.spca .animal-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+
+/* ---------- Small screens ---------- */
+@media (max-width: 600px) {
+  body.spca .button-container, body.spca .btn-container, body.spca .btn-row { flex-direction: column; align-items: stretch; }
+  body.spca form button[type=submit], body.spca .back-btn { justify-content: center; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { body.spca * { transition: none !important; } }
+
+/* ---------- One page background everywhere ---------- */
+body.spca { background: var(--spca-bg) !important; background-image: none !important; }
+body.spca .overlay { background: var(--spca-bg) !important; color: var(--spca-ink); }
+body.spca table { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(12, 40, 46, 0.06); }
+
+/* ---------- Buttons inside tables: one style, colour only where it means something ---------- */
+body.spca td a.btn, body.spca td button, body.spca td .action-btn, body.spca td a[class*="btn"] {
+  display: inline-flex; align-items: center; gap: 5px; margin: 2px 4px 2px 0;
+  background: var(--spca-teal); color: #fff; border: 0; border-radius: 8px;
+  padding: 6px 12px; font-size: 0.82rem; font-weight: 600; text-decoration: none; cursor: pointer;
+  box-shadow: none; transform: none; width: auto;
+}
+body.spca td a.btn:hover, body.spca td button:hover, body.spca td .action-btn:hover { background: var(--spca-teal-dark); }
+body.spca td [class*="approve"], body.spca td [class*="accept"], body.spca td [class*="complete"] { background: var(--spca-good) !important; }
+body.spca td [class*="reject"], body.spca td [class*="delete"], body.spca td [class*="danger"], body.spca td [class*="missed"] { background: var(--spca-bad) !important; }
+body.spca td [class*="archive"] { background: #5b6e72 !important; }
+
+/* ---------- Staff top bar: the same on every staff page ---------- */
+body.spca .spca-topbar {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 18px; padding: 10px max(16px, env(safe-area-inset-left, 0px));
+  background: var(--spca-teal); color: #fff; font-family: var(--spca-font);
+  box-shadow: 0 2px 8px rgba(12, 40, 46, 0.18);
+}
+body.spca .spca-brand { color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem; letter-spacing: 0.01em; }
+body.spca .spca-brand span { background: #fff; color: var(--spca-teal); border-radius: 6px; padding: 2px 7px; margin-right: 6px; font-size: 0.82rem; }
+body.spca .spca-topbar nav { display: flex; gap: 6px; flex-wrap: wrap; }
+body.spca .spca-topbar nav a {
+  color: #fff; text-decoration: none; font-weight: 600; font-size: 0.88rem;
+  padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.35);
+}
+body.spca .spca-topbar nav a:hover { background: rgba(255, 255, 255, 0.14); }
+
+/* ---------- Lists: filter bar, pager, status pills, tabs ---------- */
+body.spca .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; background: var(--spca-card); border: 1px solid var(--spca-line); border-radius: var(--spca-radius); padding: 14px; margin: 14px 0; color: var(--spca-ink); }
+body.spca .filter-bar label { display: flex; flex-direction: column; gap: 4px; font-size: .8rem; font-weight: 600; color: var(--spca-muted); margin: 0; }
+body.spca .filter-bar input, body.spca .filter-bar select { padding: 8px 10px; border: 1px solid var(--spca-line); border-radius: 8px; font-size: .9rem; min-width: 0; background: #fff; color: var(--spca-ink); }
+body.spca .filter-bar .grow { flex: 1 1 200px; }
+body.spca .filter-bar button, body.spca .tool-btn { padding: 9px 14px; border-radius: 8px; border: 0; background: var(--spca-teal); color: #fff; font-weight: 600; cursor: pointer; text-decoration: none; font-size: .9rem; display: inline-block; }
+body.spca .tool-btn.light, body.spca .filter-bar .light { background: var(--spca-teal-soft); color: var(--spca-teal); }
+body.spca .list-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; font-size: .9rem; }
+body.spca .pager { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+body.spca .pager a, body.spca .pager span { padding: 7px 12px; border-radius: 8px; background: var(--spca-card); border: 1px solid var(--spca-line); color: var(--spca-teal); text-decoration: none; font-weight: 600; font-size: .9rem; }
+body.spca .pager .pager-current { background: var(--spca-teal); color: #fff; border-color: var(--spca-teal); }
+body.spca .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600; white-space: nowrap; background: var(--spca-teal-soft); color: var(--spca-teal); }
+body.spca .pill.Pending { background: #fff4d6; color: #8a5a00; }
+body.spca .pill.Home-visit { background: #e3effd; color: #1b4f8a; }
+body.spca .pill.Approved { background: #dff3e7; color: var(--spca-good); }
+body.spca .pill.Adopted { background: var(--spca-teal); color: #fff; }
+body.spca .pill.Rejected { background: #fbe4e1; color: var(--spca-bad); }
+body.spca .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+body.spca .tabs a { padding: 8px 14px; border-radius: 999px; background: var(--spca-card); border: 1px solid var(--spca-line); color: var(--spca-teal); text-decoration: none; font-weight: 600; font-size: .9rem; }
+body.spca .tabs a.on { background: var(--spca-teal); color: #fff; border-color: var(--spca-teal); }
+body.spca .tabs b { opacity: .7; margin-left: 4px; font-weight: 600; }
+
+/* ---------- KPI tiles and chart cards ---------- */
+body.spca .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+body.spca .kpi { background: var(--spca-card); border: 1px solid var(--spca-line); border-radius: var(--spca-radius); padding: 16px; color: var(--spca-ink); }
+body.spca .kpi .k-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--spca-muted); font-weight: 600; }
+body.spca .kpi .k-value { font-size: 1.9rem; font-weight: 700; color: var(--spca-teal); line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+body.spca .kpi .k-sub { font-size: .8rem; color: var(--spca-muted); margin-top: 4px; }
+body.spca .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+body.spca .chart-card { background: var(--spca-card); border: 1px solid var(--spca-line); border-radius: var(--spca-radius); padding: 16px; min-width: 0; color: var(--spca-ink); }
+body.spca .chart-card h3 { margin: 0 0 2px; font-size: 1rem; color: var(--spca-ink); }
+body.spca .chart-card p { margin: 0 0 10px; font-size: .82rem; color: var(--spca-muted); }
+body.spca .chart-box { position: relative; height: 260px; }
+body.spca .page-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 40px; }
+body.spca .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+body.spca .page-head p { margin: 4px 0 0; color: var(--spca-muted); }
+body.spca .flash { padding: 10px 14px; border-radius: 8px; margin: 12px 0; font-weight: 500; }
+body.spca .flash.ok { background: #dff3e7; color: var(--spca-good); }
+body.spca .flash.bad { background: #fbe4e1; color: var(--spca-bad); }

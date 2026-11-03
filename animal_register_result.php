@@ -1,9 +1,11 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Registration Result</title>
+<title>Registration Result | SPCA Guardian Pro</title>
 <style>
 /* Consistent CSS for the form and the result page */
 body {
@@ -117,8 +119,10 @@ h2 {
     width: 120px;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
     <?php
@@ -129,11 +133,10 @@ h2 {
         echo '<h2>Animal Registered Successfully!</h2>';
         echo '<div class="success-message">Animal profile created and kennel allocated.</div>';
 
-        $animalId = (int)($_GET['animalId'] ?? 0);
-        $sql = "SELECT * FROM animals a
-                LEFT JOIN animal_kennel ak ON ak.animal_id = a.id
-                LEFT JOIN kennels k ON ak.kennel_id = k.kennel_id
-                WHERE a.id = ?";
+        $animalId = $_GET['animalId'];
+        $sql = "SELECT * FROM animals a 
+                JOIN kennels k ON a.kennel_id = k.kennel_id 
+                WHERE a.animal_id = ?";
         
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $animalId);
@@ -171,7 +174,7 @@ h2 {
         echo '<div class="error-message">Error: ' . htmlspecialchars($errorMessage) . '</div>';
     }
     ?>
-    <a href='admin dashboard.php' class="btn back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
     <a href='register_animal.html' class="btn back-btn">Register Another Animal</a>
 </div>
 </div>

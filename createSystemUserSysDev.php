@@ -1,152 +1,85 @@
+<?php
+// Creates a user account. Two ways in:
+//  - the public "Create Account" form on Newlogin.html: always a Volunteer account
+//  - add_user.php, used by a signed-in Administrator: Administrator, Vet or Volunteer
+require_once __DIR__ . '/bootstrap.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: Newlogin.html');
+    exit;
+}
+
+$isAdmin = ($_SESSION['access'] ?? '') === 'yes' && ($_SESSION['userrole'] ?? '') === 'Administrator';
+
+$in = [
+    'firstname'   => trim($_POST['firstname'] ?? ''),
+    'surname'     => trim($_POST['surname'] ?? ''),
+    'username'    => trim($_POST['username'] ?? ''),
+    'email'       => trim($_POST['email'] ?? ''),
+    'phonenumber' => trim($_POST['phonenumber'] ?? ''),
+    'userrole'    => $isAdmin ? (string)($_POST['userrole'] ?? '') : 'Volunteer',
+];
+$pword = (string)($_POST['pword'] ?? '');
+
+$problems = [];
+if ($in['firstname'] === '' || $in['surname'] === '')                  $problems[] = 'Please enter a first name and surname.';
+if (!preg_match('/^[A-Za-z0-9._-]{3,35}$/', $in['username']))         $problems[] = 'Usernames need 3 to 35 letters or numbers (dots, dashes and underscores are fine, no spaces).';
+if (!valid_email($in['email']))                                        $problems[] = 'Please enter a valid email address. It is used for password resets.';
+if (!valid_phone($in['phonenumber']))                                  $problems[] = 'Please enter a South African phone number, e.g. 082 123 4567.';
+if (!in_array($in['userrole'], ['Administrator', 'Vet', 'Volunteer'], true)) $problems[] = 'Please choose a role.';
+$problems = array_merge($problems, password_problems($pword));
+if (!$problems && q("SELECT 1 FROM users WHERE username = ? LIMIT 1", [$in['username']])->num_rows) {
+    $problems[] = "The username '{$in['username']}' is already taken. Please choose another.";
+}
+
+if (!$problems) {
+    q("INSERT INTO users (firstname, surname, username, userpassword, userrole, phonenumber, email) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [$in['firstname'], $in['surname'], $in['username'], password_hash($pword, PASSWORD_DEFAULT),
+       $in['userrole'], $in['phonenumber'], $in['email']]);
+    log_activity($isAdmin ? 'Created user' : 'Volunteer signed up', "{$in['username']} ({$in['userrole']})");
+}
+
+// Administrators go back to the users list (or the form, if something needs fixing)
+if ($isAdmin) {
+    if ($problems) {
+        $_SESSION['add_user'] = ['problems' => $problems, 'values' => $in];
+        header('Location: add_user.php');
+    } else {
+        $_SESSION['flash'] = ['ok', "{$in['firstname']} {$in['surname']} can now sign in as {$in['userrole']} with the username '{$in['username']}'."];
+        header('Location: displaySystemUser.php');
+    }
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creating system user</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'TASA Explorer', sans-serif;
-            text-decoration: none;
-            list-style: none;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(90deg, #e2e2e2, #134f5c);
-        }
-
-        .container {
-            position: relative;
-            width: 850px;
-            height: auto;
-            background: #fff;
-            margin: 20px;
-            border-radius: 30px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            padding: 40px;
-            text-align: center;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #134f5c;
-        }
-
-        p {
-            margin: 8px 0;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .btn {
-            width: auto;
-            padding: 12px 24px;
-            margin-top: 20px;
-            background: #134f5c;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: #fff;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .btn:hover {
-            background: #0d3c46;
-        }
-
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 2000;
-            background: #134f5c;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .back-button:hover {
-            background: #0d3c46;
-            transform: translateY(-2px);
-        }
-
-        .back-button i {
-            font-size: 18px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= $problems ? 'Please check your details' : 'Account created' ?> | SPCA Guardian Pro</title>
+<link rel="stylesheet" href="spca-theme.css">
+<style>
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0;padding:16px;box-sizing:border-box}
+  .card{background:#fff;border-radius:16px;padding:28px;max-width:460px;width:100%;box-shadow:0 10px 30px rgba(12,40,46,.12)}
+  .card p{color:#5b6e72;line-height:1.55}
+  .card ul{margin:0 0 18px;padding-left:20px;color:#c0392b;line-height:1.6}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+</style>
 </head>
-<body>
-    <div class="container">
-        <?php
-session_start();  // Add this at the very top
-include "databaseConnection.php"; 
-
-$surname   = $_POST["surname"];
-$firstname = $_POST["firstname"];
-$pword     = $_POST["pword"];
-$username  = $_POST["username"];
-$userrole  = $_POST["userrole"];
-$phonenumber = $_POST["phonenumber"];
-
-$hashedpassword = password_hash($pword, PASSWORD_DEFAULT);
-
-$stmt = $conn->prepare("INSERT INTO users (surname, firstname, username, userpassword, userrole, phonenumber) 
-                        VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $surname, $firstname, $username, $hashedpassword, $userrole, $phonenumber);
-
-if ($stmt->execute()) {
-    $new_id = $conn->insert_id;
-    
-    // Store registration data in session
-    $_SESSION['last_registration'] = [
-        'id' => $new_id,
-        'surname' => $surname,
-        'firstname' => $firstname,
-        'username' => $username,
-        'userrole' => $userrole,
-        'phonenumber' => $phonenumber,
-        'timestamp' => time()
-    ];
-    
-    // Store success message in session (useful if redirecting)
-    $_SESSION['success_message'] = "User registered successfully!";
-
-    echo "<h2>Record successfully created</h2>";
-    echo "<p><strong>Assigned ID Number:</strong> $new_id</p>";
-    echo "<p><strong>Surname:</strong> $surname</p>";
-    echo "<p><strong>Firstname:</strong> $firstname</p>";
-    echo "<p><strong>Username:</strong> $username</p>";
-    echo "<p><strong>User Role:</strong> $userrole</p>";
-    echo "<p><strong>Phone Number:</strong> $phonenumber</p>";
-    echo "<p><a href='Newlogin.html'><button class='btn'>Back to Login</button></a></p>";
-} else {
-    // Store error in session
-    $_SESSION['error_message'] = "Unable to create record: " . $stmt->error;
-    
-    echo "<h2 style='color:red;'>Unable to create the record</h2>";
-    echo "<p>Error: " . $stmt->error . "</p>";
-}
-
-$stmt->close();
-$conn->close();
-?>
-    </div>
+<body class="spca">
+<div class="card">
+<?php if ($problems): ?>
+  <h2>Please check your details</h2>
+  <ul><?php foreach ($problems as $p): ?><li><?= e($p) ?></li><?php endforeach; ?></ul>
+  <div class="row">
+    <a href="javascript:history.back()" class="back-btn">&larr; Go back and fix them</a>
+  </div>
+<?php else: ?>
+  <h2>Welcome, <?= e($in['firstname']) ?>!</h2>
+  <p class="success">Your volunteer account is ready.</p>
+  <p>Sign in with your username <strong><?= e($in['username']) ?></strong> and the password you chose.</p>
+  <div class="row"><a href="Newlogin.html" class="back-btn">Go to sign in &rarr;</a></div>
+<?php endif; ?>
+</div>
 </body>
 </html>

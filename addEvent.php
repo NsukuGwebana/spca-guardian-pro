@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 
 include "databaseConnection.php";
 
@@ -31,25 +31,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         );
 
         if ($stmt->execute()) {
+            log_activity('Created event', 'Event #' . $stmt->insert_id);
             $message = "<h3>New event created successfully!</h3>";
         } else {
-            $message = "<p class='error-message'>Error: " . $stmt->error . "</p>";
+            $message = "<p class='error-message'>Sorry, the event couldn't be saved. Please try again.</p>";
         }
         $stmt->close();
     } else {
-        $message = "<p class='error-message'>Error preparing the SQL statement: " . $conn->error . "</p>";
+        $message = "<p class='error-message'>Sorry, the event couldn't be saved. Please try again.</p>";
     }
 } else {
     $message = "<p class='error-message'>Invalid request method.</p>";
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Event Creation Status</title>
+    <title>Event Creation Status | SPCA Guardian Pro</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -103,8 +102,10 @@ $conn->close();
             color: #f44336;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
     <div class="overlay">
         <div class="status-box">
             <?php echo $message; ?>

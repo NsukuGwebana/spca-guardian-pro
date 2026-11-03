@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/bootstrap.php';
 function allocate_kennel($conn, $animalId, $width, $height, $species, $health_status) {
     // Determine size category based on species and dimensions
     $size_category = determine_size_category($width, $height, $species);
@@ -30,7 +31,7 @@ function allocate_kennel($conn, $animalId, $width, $height, $species, $health_st
     $stmt = $conn->prepare($query);
     
     if (!$stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed. Please try again.");
     }
     
     if ($health_status === "Unhealthy") {
@@ -40,7 +41,7 @@ function allocate_kennel($conn, $animalId, $width, $height, $species, $health_st
     }
     
     if (!$stmt->execute()) {
-        throw new Exception("Execute failed: " . $stmt->error);
+        throw new Exception("Execute failed. Please try again.");
     }
     
     $result = $stmt->get_result();
@@ -53,23 +54,23 @@ function allocate_kennel($conn, $animalId, $width, $height, $species, $health_st
         // Update kennel status to occupied
         $updateKennel = $conn->prepare("UPDATE kennels SET status = 'Occupied' WHERE kennel_id = ?");
         if (!$updateKennel) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $updateKennel->bind_param("i", $kennelId);
         if (!$updateKennel->execute()) {
-            throw new Exception("Execute failed: " . $updateKennel->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         // Create animal-kennel assignment
         $assign = $conn->prepare("INSERT INTO animal_kennel (animal_id, kennel_id, assignment_date) VALUES (?, ?, NOW())");
         if (!$assign) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $assign->bind_param("ii", $animalId, $kennelId);
         if (!$assign->execute()) {
-            throw new Exception("Execute failed: " . $assign->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         return array('kennel_id' => $kennelId, 'kennel_name' => $kennelName);
@@ -121,12 +122,12 @@ function place_in_emergency_cell($conn, $animalId, $width, $height) {
         
         $createStmt = $conn->prepare($createQuery);
         if (!$createStmt) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $createStmt->bind_param("dd", $emergencyWidth, $emergencyHeight);
         if (!$createStmt->execute()) {
-            throw new Exception("Execute failed: " . $createStmt->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         $emergencyId = $conn->insert_id;
@@ -142,38 +143,38 @@ function place_in_emergency_cell($conn, $animalId, $width, $height) {
             $updateQuery = "UPDATE kennels SET max_width = ?, max_height = ? WHERE kennel_id = ?";
             $updateStmt = $conn->prepare($updateQuery);
             if (!$updateStmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
+                throw new Exception("Prepare failed. Please try again.");
             }
             
             $updateStmt->bind_param("ddi", $newWidth, $newHeight, $emergencyId);
             if (!$updateStmt->execute()) {
-                throw new Exception("Execute failed: " . $updateStmt->error);
+                throw new Exception("Execute failed. Please try again.");
             }
         }
     } else {
-        throw new Exception("Error checking emergency cell: " . $conn->error);
+        throw new Exception("Error checking emergency cell. Please try again.");
     }
     
     // Assign animal to emergency cell
     $assign = $conn->prepare("INSERT INTO animal_kennel (animal_id, kennel_id, assignment_date, is_emergency) VALUES (?, ?, NOW(), 1)");
     if (!$assign) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed. Please try again.");
     }
     
     $assign->bind_param("ii", $animalId, $emergencyId);
     if (!$assign->execute()) {
-        throw new Exception("Execute failed: " . $assign->error);
+        throw new Exception("Execute failed. Please try again.");
     }
     
     // Update animal status to indicate it's in emergency cell
     $updateAnimal = $conn->prepare("UPDATE animals SET Kennel_status = 'Emergency Holding', status = 'Not Available' WHERE id = ?");
     if (!$updateAnimal) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed. Please try again.");
     }
     
     $updateAnimal->bind_param("i", $animalId);
     if (!$updateAnimal->execute()) {
-        throw new Exception("Execute failed: " . $updateAnimal->error);
+        throw new Exception("Execute failed. Please try again.");
     }
     
     return $emergencyId;
@@ -189,7 +190,7 @@ function get_emergency_animals($conn) {
     
     $result = $conn->query($query);
     if (!$result) {
-        throw new Exception("Query failed: " . $conn->error);
+        throw new Exception("Query failed. Please try again.");
     }
     
     return $result;
@@ -202,34 +203,34 @@ function manual_allocate_kennel($conn, $animalId, $kennelId) {
         // Remove from emergency cell
         $remove = $conn->prepare("UPDATE animal_kennel SET release_date = NOW() WHERE animal_id = ? AND is_emergency = 1 AND release_date IS NULL");
         if (!$remove) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $remove->bind_param("i", $animalId);
         if (!$remove->execute()) {
-            throw new Exception("Execute failed: " . $remove->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         // Assign to new kennel
         $assign = $conn->prepare("INSERT INTO animal_kennel (animal_id, kennel_id, assignment_date) VALUES (?, ?, NOW())");
         if (!$assign) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $assign->bind_param("ii", $animalId, $kennelId);
         if (!$assign->execute()) {
-            throw new Exception("Execute failed: " . $assign->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         // Update kennel status
         $updateKennel = $conn->prepare("UPDATE kennels SET status = 'Occupied' WHERE kennel_id = ?");
         if (!$updateKennel) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $updateKennel->bind_param("i", $kennelId);
         if (!$updateKennel->execute()) {
-            throw new Exception("Execute failed: " . $updateKennel->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         // Update animal status
@@ -241,12 +242,12 @@ function manual_allocate_kennel($conn, $animalId, $kennelId) {
         
         $updateAnimal = $conn->prepare("UPDATE animals SET Kennel_status = ?, status = 'Available' WHERE id = ?");
         if (!$updateAnimal) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed. Please try again.");
         }
         
         $updateAnimal->bind_param("si", $kennel['kennel_name'], $animalId);
         if (!$updateAnimal->execute()) {
-            throw new Exception("Execute failed: " . $updateAnimal->error);
+            throw new Exception("Execute failed. Please try again.");
         }
         
         $conn->commit();

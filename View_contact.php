@@ -1,69 +1,20 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
-// Try to detect the correct table name
-$table_name = "";
-$tables = $conn->query("SHOW TABLES");
-while ($table = $tables->fetch_array()) {
-    if (strpos(strtolower($table[0]), 'contact') !== false || strpos(strtolower($table[0]), 'submission') !== false) {
-        $table_name = $table[0];
-        break;
-    }
-}
-
-// If no table found, try a different approach
-if (empty($table_name)) {
-    // Check if we can find a table with the expected columns
-    $tables = $conn->query("SHOW TABLES");
-    while ($table = $tables->fetch_array()) {
-        $table_name_test = $table[0];
-        $columns = $conn->query("SHOW COLUMNS FROM $table_name_test");
-        $has_columns = 0;
-        while ($column = $columns->fetch_assoc()) {
-            if (in_array($column['Field'], ['first_name', 'last_name', 'email', 'subject', 'message'])) {
-                $has_columns++;
-            }
-        }
-        if ($has_columns >= 5) {
-            $table_name = $table_name_test;
-            break;
-        }
-    }
-}
-
-// If still no table found, use a default name
-if (empty($table_name)) {
-    $table_name = "contact_submissions";
-}
-
-// Check if search parameter is provided
-$search = "";
-if (isset($_GET['search']) && !empty($_GET['search'])) {
-    $search = $conn->real_escape_string($_GET['search']);
-}
-
-// Run query to get contact submissions with optional search
-$sql = "SELECT * FROM $table_name";
-if (!empty($search)) {
-    $sql .= " WHERE email LIKE '%$search%' OR first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR subject LIKE '%$search%'";
-}
-$sql .= " ORDER BY submission_date DESC";
-
-$result = $conn->query($sql);
-
-// If query failed, try without the date ordering
-if (!$result) {
-    $sql = "SELECT * FROM $table_name";
-    if (!empty($search)) {
-        $sql .= " WHERE email LIKE '%$search%' OR first_name LIKE '%$search%' OR last_name LIKE '%$search%' OR subject LIKE '%$search%'";
-    }
-    $result = $conn->query($sql);
+// Messages sent through the Contact Us form (saved by message.php)
+$search = trim($_GET['search'] ?? '');
+if ($search !== '') {
+    $like = '%' . $search . '%';
+    $result = q("SELECT * FROM message_submissions
+                 WHERE email LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR subject LIKE ?
+                 ORDER BY submission_date DESC", [$like, $like, $like, $like]);
+} else {
+    $result = q("SELECT * FROM message_submissions ORDER BY submission_date DESC");
 }
 ?>
 <!DOCTYPE html>
@@ -198,14 +149,12 @@ td {
     max-width: 400px;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>SPCA Contact Form Submissions</h1>
-    
-    <?php if (!empty($table_name)): ?>
-    <p style="text-align: center; font-style: italic;">Using table: <?php echo $table_name; ?></p>
-    <?php endif; ?>
 
     <div class="search-row">
         <form method="GET" class="search-form">
@@ -260,14 +209,12 @@ td {
                 No submissions found for "<?php echo htmlspecialchars($search); ?>"
             <?php else: ?>
                 No contact form submissions found in the database.
-                <?php if ($conn->error): ?>
-                    <br>Error: <?php echo $conn->error; ?>
-                <?php endif; ?>
+                
             <?php endif; ?>
         </p>
     <?php endif; ?>
 
-    <a href="admin dashboard.php" class="back-btn">⬅ Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </body>
 </html>

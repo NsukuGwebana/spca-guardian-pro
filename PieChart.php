@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Get species distribution data
 $sql = "SELECT Species, COUNT(*) as count 
@@ -24,7 +23,7 @@ while ($row = $result->fetch_assoc()) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Animal Species Distribution</title>
+<title>Animal Species Distribution | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -116,8 +115,10 @@ h1, h2 {
     border-radius: 3px;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Animal Species Distribution</h1>
     
@@ -137,7 +138,7 @@ h1, h2 {
             ?>
             <div class="stats-item">
                 <span><?= htmlspecialchars($species['Species']) ?>:</span>
-                <span><?= $species['count'] ?> (<?= $percentage ?>%)</span>
+                <span><?= e($species['count']) ?> (<?= $percentage ?>%)</span>
             </div>
             <?php endforeach; ?>
             
@@ -148,7 +149,7 @@ h1, h2 {
         </div>
     </div>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <!-- Load Google Charts -->

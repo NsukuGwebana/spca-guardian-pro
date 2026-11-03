@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Signup Form</title>
+    <title>Login/Signup Form | SPCA Guardian Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap');
@@ -230,6 +230,28 @@
         .back-button i {
             font-size: 18px;
         }
+            /* The sign-up form has one more line of text: keep the button full size */
+        .btn { flex-shrink: 0; }
+        .register-form-container form { padding-top: 24px; padding-bottom: 24px; gap: 12px; }
+        .register-form-container .input-box input { padding-top: 11px; padding-bottom: 11px; }
+    
+        /* Phones: show one form at a time, stacked, instead of the sliding panels */
+        @media (max-width: 700px) {
+            body { align-items: flex-start; padding: 16px 0; }
+            .container { width: auto; height: auto; margin: 0 16px; border-radius: 20px; }
+            .form-container, .toggle-container, .toggle, .toggle-panel { position: static; width: 100%; height: auto; transform: none !important; border-radius: 0 !important; left: auto; }
+            .container.active .register-form-container,
+            .container:not(.active) .login-form-container,
+            .container.active .toggle-right,
+            .container:not(.active) .toggle-left { display: none; }
+            form { padding: 64px 20px 24px; height: auto; }
+            .register-form-container form { padding-top: 64px; }
+            .toggle-panel { padding: 24px 20px 28px; }
+            .toggle-panel h1 { font-size: 22px; }
+            .toggle-panel br { display: none; }
+            .toggle-panel p { margin: 6px 0 14px; }
+            .input-box input { padding-right: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -245,27 +267,22 @@
         <!-- Register Form -->
         <div class="form-container register-form-container">
             <form action="createSystemUserSysDev.php" method="POST">
-                <h1>Create Account</h1>
+                <h1>Volunteer Sign-up</h1>
                 
                 <div class="input-group">
                     <div class="input-box"><input type="text" name="username" maxlength="35" size="20" placeholder="Username" required></div>
 
-                    <div class="input-box"><input type="password" name="pword" maxlength="35" size="20" placeholder="Password" required></div>
+                    <div class="input-box"><input type="password" name="pword" minlength="8" maxlength="72" size="20" placeholder="Password (8+ letters &amp; numbers)" autocomplete="new-password" required></div>
 
                     <div class="input-box"><input type="text" name="firstname" maxlength="35" size="20" placeholder="Firstname" required></div>
 
                     <div class="input-box"><input type="text" name="surname" maxlength="35" size="20" placeholder="Surname" required></div>
  
+                    <div class="input-box"><input type="email" name="email" maxlength="150" size="20" placeholder="Email (for password resets)" autocomplete="email" required></div>
                     <div class="input-box"><input type="tel" name="phonenumber" maxlength="15" size="20" placeholder="Phone Number (e.g., 041 123 4567)"  required></div>
 
-                    <div class="input-box">
-                       <select id="usrole" name="userrole" required style="width: 100%; padding: 13px 20px; background: #eee; border-radius: 8px; border: none; outline: none; font-size: 16px; color: #333; font-weight: 500;">
-                           <option value="0" selected>Select role</option>
-                           <option value="Administrator">Administrator</option>
-                           <option value="Vet">Vet</option>
-                           <option value="Volunteer">Volunteer</option>
-                       </select>
-                    </div>
+                    <input type="hidden" name="userrole" value="Volunteer">
+                    <p style="font-size:13px;color:#555;margin:6px 0 0;text-align:center">This creates a <strong>Volunteer</strong> account. Administrator and Vet accounts are added by an Administrator.</p>
 
                 </div>
                 <button class="btn">Register</button>
@@ -279,7 +296,7 @@
              
                 <div class="input-group">
                     <div class="input-box"><input type="text" id="username" name="username" maxlength="35" size="20" placeholder="Username" required></div>
-                    <div class="input-box"><input type="password" id="userpassword" name="userpassword" maxlength="35" size="20" placeholder="Password" required></div>
+                    <div class="input-box"><input type="password" id="userpassword" name="userpassword" maxlength="72" size="20" placeholder="Password" required></div>
                 </div>
                 <button class="btn">Login</button>
                 <a href="ForgotPasswordform.html" class="login-link">Forgot your password</a>
@@ -292,7 +309,7 @@
                 <div class="toggle-panel toggle-left">
                     <h1>Hello, Friend!</h1>
                     <br>
-                    <p>Register with your personal details to use all site features</p>
+                    <p>Volunteering with us? Create your volunteer account to log hours and join events.</p>
                     <br>
                     <button class="btn" id="register">Register</button>
                 </div>
