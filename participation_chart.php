@@ -1,18 +1,15 @@
 <?php
-require_once __DIR__ . '/config.php';
-// Database connection - directly included instead of separate file
-$serverName = DB_HOST;
-$username = DB_USER; 
-$password = DB_PASS;
-$database = DB_NAME;
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 
 // Create connection
-$conn = new mysqli($serverName, $username, $password, $database);
+$conn = db();
 
 // Check connection
 if ($conn->connect_error) {
     $dbError = true;
-    $errorMessage = "Connection failed: " . $conn->connect_error;
+    $errorMessage = "Connection failed. Please try again.";
 } else {
     $dbError = false;
 }
@@ -66,7 +63,7 @@ if ($dbError || empty($volunteerData)) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Volunteer Participation</title>
+<title>Volunteer Participation | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -167,8 +164,10 @@ h1, h2 {
     text-align: center;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Volunteer Participation</h1>
     
@@ -207,7 +206,7 @@ h1, h2 {
             ?>
             <div class="stats-item">
                 <span><?= htmlspecialchars($volunteer['volunteer_name']) ?>:</span>
-                <span><?= $volunteer['total_participation'] ?> (<?= $percentage ?>%)</span>
+                <span><?= e($volunteer['total_participation']) ?> (<?= $percentage ?>%)</span>
             </div>
             <?php endforeach; ?>
             
@@ -223,7 +222,7 @@ h1, h2 {
         </div>
     </div>
 
-   <button class="back-btn" onclick="history.back()">Back</button>
+   <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <!-- Load Google Charts -->
@@ -297,5 +296,4 @@ function drawChart() {
 <?php 
 // Close connection if it's open
 if (isset($conn) && $conn) {
-    $conn->close();
 }

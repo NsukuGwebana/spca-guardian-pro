@@ -1,18 +1,18 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['cruelty_id'])) { header('Location: view_reports.php'); exit; } // form must be submitted
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$conn = db();
 
 // Collect form data
-$cruelty_id   = $_POST['cruelty_id'];
-$investigator = $_POST['investigator'];
-$status       = $_POST['status'];
-$actions      = $_POST['actions'];
-$follow_up    = $_POST['follow_up'];
-$notes        = $_POST['notes'];
+$cruelty_id   = $_POST['cruelty_id'] ?? '';
+$investigator = $_POST['investigator'] ?? '';
+$status       = $_POST['status'] ?? '';
+$actions      = $_POST['actions'] ?? '';
+$follow_up    = $_POST['follow_up'] ?? '';
+$notes        = $_POST['notes'] ?? '';
 
 // Insert or update investigation
 $sql = "INSERT INTO cruelty_investigation (cruelty_id, investigator, status, actions, follow_up, notes)
@@ -28,12 +28,12 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("isssss", $cruelty_id, $investigator, $status, $actions, $follow_up, $notes);
 
 if ($stmt->execute()) {
+    log_activity('Saved cruelty investigation', "Report #$cruelty_id, status $status");
     header("Location: view_reports.php?success=1");
     exit();
 } else {
-    echo "Error: " . $stmt->error;
+    echo "Error. Please try again.";
 }
 
 $stmt->close();
-$conn->close();
 ?>

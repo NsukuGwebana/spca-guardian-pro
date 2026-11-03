@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events Management </title>
+    <title>Events Management | SPCA Guardian Pro</title>
     <style>
         * {
             box-sizing: border-box;
@@ -218,8 +218,10 @@
             }
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
     <div class="overlay">
         <div class="container">
             <header>
@@ -346,11 +348,12 @@
                         <button type="reset" class="btn reset-btn">Reset Form</button>
                     </form>
                     
-                   <button class="back-btn" onclick="history.back()">Back</button>
+                   <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
                     </button>
                 </div>
             </div>
         </div>
     </div>
+<script src="csrf.js"></script>
 </body>
 </html>

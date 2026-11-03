@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/config.php';
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$ALLOWED_ROLES = ['Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
+if (session_status() === PHP_SESSION_NONE) { if (session_status() === PHP_SESSION_NONE) { session_start(); } }
 
 // Check if user is logged in, otherwise redirect to login
 if (!isset($_SESSION['username'])) {
@@ -20,7 +20,7 @@ $userRole = $_SESSION['userrole'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veterinary Dashboard</title>
+    <title>Veterinary Dashboard | SPCA Guardian Pro</title>
     
     <!-- Poppins Font from Google -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -665,21 +665,11 @@ $userRole = $_SESSION['userrole'] ?? '';
 <body>
     <?php
     // Database connection and data fetching
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
     
-    $serverName = DB_HOST;
-    $username   = DB_USER;
-    $password   = DB_PASS;
-    $database   = DB_NAME;
+
     
-    $conn = new mysqli($serverName, $username, $password, $database);
+    $conn = db();
     
-    // Check for connection error
-    if ($conn->connect_error) { 
-        echo "<div class='error'>Database Connection failed: " . $conn->connect_error . "</div>"; 
-        exit; 
-    }
     
     // Get today's date
     $today = date('Y-m-d');
@@ -706,8 +696,8 @@ $userRole = $_SESSION['userrole'] ?? '';
     // Query to get vaccinations due count (assuming a vaccinations table or field)
     $vaccinationsDueQuery = "
         SELECT COUNT(*) as count 
-        FROM vaccinations 
-        WHERE due_date <= DATE_ADD('$today', INTERVAL 7 DAY) AND status = 'Pending'
+        FROM treatments
+        WHERE treatment_types = 'Vaccination' AND (treatment_status IS NULL OR treatment_status <> 'Completed')
     ";
     $vaccinationsDueResult = $conn->query($vaccinationsDueQuery);
     $vaccinationsDue = $vaccinationsDueResult ? $vaccinationsDueResult->fetch_assoc()['count'] : 0;
@@ -738,7 +728,6 @@ $userRole = $_SESSION['userrole'] ?? '';
     }
     
     // Close the connection
-    $conn->close();
     ?>
     
     <div class="app-container">

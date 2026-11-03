@@ -1,23 +1,13 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/bootstrap.php';
 
-// DB connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
-
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 $application = null;
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $id_number = trim($_POST['id_number']);
+    $id_number = trim($_POST['id_number'] ?? '');
 
     $stmt = $conn->prepare("
         SELECT a.*, ani.Aname AS animal_name, ani.Species, ani.Animal_breed
@@ -36,14 +26,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $stmt->close();
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Track Adoption</title>
+    <title>Track Adoption | SPCA Guardian Pro</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -113,9 +101,18 @@ $conn->close();
             font-weight: bold;
         }
 
-        .Pending { background-color: rgba(255, 193, 7, 0.3); color: #ffeb3b; }
-        .Approved { background-color: rgba(76, 175, 80, 0.3); color: #8bc34a; }
-        .Rejected { background-color: rgba(244, 67, 54, 0.3); color: #f44336; }
+        .status-box { background: #fff; color: #1d2f33; text-align: left; font-weight: 400; border: 1px solid #cfdcdf; }
+        .steps { list-style: none; display: flex; padding: 0; margin: 16px 0; counter-reset: s; }
+        .steps li { flex: 1; text-align: center; font-size: .8rem; color: #5b6e72; position: relative; padding-top: 34px; }
+        .steps li::before { counter-increment: s; content: counter(s); position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 26px; line-height: 26px; border-radius: 50%; background: #e6eff1; color: #134f5c; font-weight: 700; z-index: 1; }
+        .steps li::after { content: ""; position: absolute; top: 12px; left: -50%; width: 100%; height: 3px; background: #e6eff1; }
+        .steps li:first-child::after { display: none; }
+        .steps li.done::before, .steps li.now::before { background: #134f5c; color: #fff; }
+        .steps li.done::after, .steps li.now::after { background: #134f5c; }
+        .steps li.now { color: #134f5c; font-weight: 700; }
+        .steps li.done::before { content: "\2713"; }
+        .help { background: #e6eff1; border-radius: 8px; padding: 10px; }
+        .step-rejected { color: #c0392b; font-weight: 700; }
 
         .back-btn {
             display: block;
@@ -130,8 +127,10 @@ $conn->close();
         }
         .back-btn:hover { background: #3b82f6; }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
 <div class="overlay">
     <div class="tracking-box">
         <h1>Track Your Adoption</h1>
@@ -144,15 +143,30 @@ $conn->close();
             <p style="text-align:center; margin-top:15px; color:#ffd700;"><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
 
-        <?php if ($application): ?>
-            <div class="status-box <?php echo htmlspecialchars($application['status']); ?>">
-                <p><strong>Animal:</strong> <?php echo htmlspecialchars($application['animal_name']); ?> (<?php echo htmlspecialchars($application['Species']); ?> / <?php echo htmlspecialchars($application['Animal_breed']); ?>)</p>
-                <p><strong>Submitted:</strong> <?php echo htmlspecialchars($application['created_at']); ?></p>
-                <p><strong>Status:</strong> <?php echo htmlspecialchars($application['status']); ?></p>
+        <?php if ($application):
+            $st = $application['status'];
+            $steps = ['Pending' => 'Applied', 'Home visit' => 'Home visit', 'Approved' => 'Approved', 'Adopted' => 'Adopted'];
+            $reached = array_search($st, array_keys($steps), true); ?>
+            <div class="status-box">
+                <p><strong><?= e($application['animal_name']) ?></strong> (<?= e($application['Species']) ?> / <?= e($application['Animal_breed']) ?>)</p>
+                <p>Applied on <?= e(date('j F Y', strtotime($application['created_at']))) ?></p>
+                <?php if ($st === 'Rejected'): ?>
+                    <p class="step-rejected">Not approved</p>
+                <?php else: ?>
+                <ol class="steps">
+                    <?php $n = 0; foreach ($steps as $key => $label): ?>
+                        <li class="<?= $n < $reached ? 'done' : ($n === $reached ? 'now' : '') ?>"><?= e($label) ?></li>
+                    <?php $n++; endforeach; ?>
+                </ol>
+                <?php endif; ?>
+                <p class="help"><?= e(adoption_status_help($st)) ?></p>
+                <?php if ($st === 'Home visit' && $application['home_visit_at']): ?>
+                    <p><strong>Home visit:</strong> <?= e(date('l j F Y, H:i', strtotime($application['home_visit_at']))) ?></p>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
-        <a href="Homepage.html" class="back-btn">Back </a>
+        <a href="Homepage.html" class="back-btn">&larr; Back to home</a>
     </div>
 </div>
 </body>

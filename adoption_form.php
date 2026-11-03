@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Available Animals</title>
+<title>Available Animals | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -124,8 +124,10 @@ p.no-animals {
     font-style: italic;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
 <div class="overlay">
 <div class="container">
 <h1>Your Choice Can Change a Life</h1>
@@ -179,19 +181,9 @@ p.no-animals {
 
 
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/bootstrap.php';
 
-// DB connection
-$serverName = DB_HOST;
-$username   = DB_USER;
-$password   = DB_PASS;
-$database   = DB_NAME;
-
-$conn = new mysqli($serverName, $username, $password, $database);
-if ($conn->connect_error) die("DB connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 // Fetch available healthy animals
 $animals = [];
@@ -202,8 +194,6 @@ $res = $conn->query("
     ORDER BY created_at DESC, id DESC
 ");
 while ($row = $res->fetch_assoc()) $animals[] = $row;
-
-$conn->close();
 ?>
 
 <?php if(count($animals) === 0): ?>
@@ -215,9 +205,7 @@ $conn->close();
         <?php if(!empty($pet['animal_picture']) && file_exists($pet['animal_picture'])): ?>
             <img src="<?php echo htmlspecialchars($pet['animal_picture']); ?>" alt="<?php echo htmlspecialchars($pet['Aname']); ?>">
         <?php else: ?>
-            <div class="default-img">
-                No Image Available
-            </div>
+            <img src="Images/no-photo.svg" alt="No photo yet">
         <?php endif; ?>
         <div class="info">
             <h3><?php echo htmlspecialchars($pet['Aname']); ?></h3>
@@ -227,7 +215,7 @@ $conn->close();
                 Age: <?php echo htmlspecialchars($pet['Aage']); ?> •
                 Color: <?php echo htmlspecialchars($pet['Color']); ?>
             </div>
-            <a class="btn" href="adopt_form.php?animal_id=<?php echo $pet['id']; ?>">Adopt Me</a>
+            <a class="btn" href="adopt_form.php?animal_id=<?= e($pet['id']) ?>">Adopt Me</a>
         </div>
     </div>
 <?php endforeach; ?>
@@ -235,7 +223,7 @@ $conn->close();
 <?php endif; ?>
 
 <!-- Back button always visible -->
-<button class="back-btn" onclick="window.history.back()"> Back</button>
+<a href="Homepage.html" class="back-btn">&larr; Back to home</a>
 
 </div>
 </div>

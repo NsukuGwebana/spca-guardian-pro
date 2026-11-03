@@ -1,4 +1,6 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 // Get cruelty_id from query string
 $cruelty_id = isset($_GET['cruelty_id']) ? intval($_GET['cruelty_id']) : 0;
 ?>
@@ -6,7 +8,7 @@ $cruelty_id = isset($_GET['cruelty_id']) ? intval($_GET['cruelty_id']) : 0;
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cruelty Investigation</title>
+<title>Cruelty Investigation | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -89,8 +91,10 @@ form input, form textarea, form select {
     background: #3d8a95;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <div class="container">
         <h1>Cruelty Investigation</h1>
@@ -130,7 +134,7 @@ form input, form textarea, form select {
             <button type="reset" class="btn reset-btn">Reset Form</button>
         </form>
 
-        <button class="back-btn" onclick="window.location.href='view_reports.php'">Back to Reports</button>
+        <a href="view_reports.php" class="back-btn">&larr; Back to reports</a>
     </div>
 </div>
 </body>

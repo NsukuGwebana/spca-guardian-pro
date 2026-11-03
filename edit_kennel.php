@@ -1,4 +1,7 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if (empty($_GET['id']) && $_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: admin_kennel.php'); exit; } // no record chosen
 // Database connection
 include("databaseConnection.php");
 
@@ -48,20 +51,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $success = true;
+        log_activity('Edited kennel', 'Kennel #' . (int)($_POST['kennel_id'] ?? $_POST['id'] ?? $_GET['id'] ?? 0));
     } else {
-        $errorMsg = $stmt->error;
+        $errorMsg = "The changes couldn't be saved. Please try again.";
     }
 
     $stmt->close();
 }
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Edit Kennel</title>
+<title>Edit Kennel | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -141,31 +144,33 @@ textarea { resize: vertical; }
 .message { text-align: center; margin-top: 20px; font-size: 18px; color: green; }
 .error { text-align: center; margin-top: 20px; font-size: 18px; color: red; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
 <?php if($success): ?>
     <h1>✅ Kennel Updated Successfully</h1>
     <p class="message">The kennel details have been updated in the system.</p>
-    <a href="admin_kennel.php" class="back-btn">⬅ Back to Kennels</a>
+    <a href="admin_kennel.php" class="back-btn">&larr; Back to kennels</a>
 <?php else: ?>
     <h2>Edit Kennel</h2>
     <?php if(isset($errorMsg)) echo "<p class='error'>Error updating kennel: $errorMsg</p>"; ?>
     <form method="POST">
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($kennel['kennel_id']); ?>">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($kennel['kennel_id'] ?? ''); ?>">
 
         <label>Kennel Name</label>
-        <input type="text" name="kennel_name" value="<?php echo htmlspecialchars($kennel['kennel_name']); ?>" required>
+        <input type="text" name="kennel_name" value="<?php echo htmlspecialchars($kennel['kennel_name'] ?? ''); ?>" required>
 
         <div class="form-row">
             <div class="form-col">
                 <label>Max Width (m)</label>
-                <input type="number" step="0.01" min="0.1" name="max_width" value="<?php echo htmlspecialchars($kennel['max_width']); ?>" required>
+                <input type="number" step="0.01" min="0.1" name="max_width" value="<?php echo htmlspecialchars($kennel['max_width'] ?? ''); ?>" required>
             </div>
             <div class="form-col">
                 <label>Max Height (m)</label>
-                <input type="number" step="0.01" min="0.1" name="max_height" value="<?php echo htmlspecialchars($kennel['max_height']); ?>" required>
+                <input type="number" step="0.01" min="0.1" name="max_height" value="<?php echo htmlspecialchars($kennel['max_height'] ?? ''); ?>" required>
             </div>
         </div>
 
@@ -202,10 +207,10 @@ textarea { resize: vertical; }
         </select>
 
         <label>Notes</label>
-        <textarea name="notes" rows="3"><?php echo htmlspecialchars($kennel['notes']); ?></textarea>
+        <textarea name="notes" rows="3"><?php echo htmlspecialchars($kennel['notes'] ?? ''); ?></textarea>
 
         <button type="submit" class="btn">Update Kennel</button>
-        <a href="admin_kennel.php" class="back-btn">Cancel / Back</a>
+        <a href="admin_kennel.php" class="back-btn">&larr; Back to kennels</a>
     </form>
 <?php endif; ?>
 </div>

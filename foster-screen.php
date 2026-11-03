@@ -1,50 +1,36 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 
-// DB connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
-
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 // Handle approve/reject
 $message = "";
-if(isset($_GET['action'], $_GET['id'])) {
+if (isset($_GET['action'], $_GET['id']) && in_array($_GET['action'], ['approve', 'reject'], true)) {
     $id = (int)$_GET['id'];
-    $action = $_GET['action'];
+    $to = $_GET['action'] === 'approve' ? 'Approved' : 'Rejected';
+    $f  = q("SELECT f.id, f.status, f.full_name, f.email, f.animal_id, a.Aname
+             FROM fosters f JOIN animals a ON a.id = f.animal_id WHERE f.id = ?", [$id])->fetch_assoc();
 
-    if($action === 'approve') {
-        $stmt = $conn->prepare("UPDATE fosters SET status='Approved' WHERE id=?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $stmt->close();
+    if (!$f) {
+        $message = "That foster application no longer exists.";
+    } elseif ($f['status'] !== 'Pending') {
+        $message = "That application was already {$f['status']}.";
+    } else {
+        q("UPDATE fosters SET status = ? WHERE id = ?", [$to, $id]);
+        // An approved foster takes the animal off the adoption list; a rejection puts it back.
+        q("UPDATE animals SET status = ? WHERE id = ?", [$to === 'Approved' ? 'Not Available' : 'Available', (int)$f['animal_id']]);
 
-        // Update animal status to 'Fostered'
-        $stmt2 = $conn->prepare("UPDATE animals SET status='Pending Foster' WHERE id=(SELECT animal_id FROM fosters WHERE id=?)");
-        $stmt2->bind_param("i", $id);
-        $stmt2->execute();
-        $stmt2->close();
-
-        $message = "Foster application approved successfully!";
-    } elseif($action === 'reject') {
-        $stmt = $conn->prepare("UPDATE fosters SET status='Rejected' WHERE id=?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $stmt->close();
-
-        // Update animal status back to Available
-        $stmt2 = $conn->prepare("UPDATE animals SET status='Available' WHERE id=(SELECT animal_id FROM fosters WHERE id=?)");
-        $stmt2->bind_param("i", $id);
-        $stmt2->execute();
-        $stmt2->close();
-
-        $message = "Foster application rejected successfully!";
+        $html = '<p>Dear ' . e($f['full_name']) . ',</p>'
+              . ($to === 'Approved'
+                  ? '<p>Good news: your application to foster <strong>' . e($f['Aname']) . '</strong> has been approved. We will phone you to arrange collection. Please bring your ID document.</p>'
+                  : '<p>Thank you for offering to foster <strong>' . e($f['Aname']) . '</strong>. Unfortunately we cannot approve your application this time.</p>')
+              . '<p>Kind regards,<br>SPCA Guardian Pro team</p>';
+        $sent = send_mail((string)$f['email'], "Your foster application for {$f['Aname']}", $html);
+        log_activity("Foster application $to", "Application #$id ({$f['Aname']}, {$f['full_name']})");
+        $message = "{$f['full_name']}'s foster application was " . strtolower($to) . '.'
+                 . ($sent ? ' The applicant has been emailed.' : ' Please phone the applicant to let them know.');
     }
 }
 
@@ -61,13 +47,12 @@ $result = $conn->query("
     ORDER BY f.id DESC
 ");
 $fosters = $result->fetch_all(MYSQLI_ASSOC);
-$conn->close();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-<title>Screen Foster Applications</title>
+<title>Screen Foster Applications | SPCA Guardian Pro</title>
 <style>
 body { font-family: Arial, sans-serif; background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed; background-size: cover; margin: 0; padding: 0; color: #fff; }
 .overlay { background: rgba(19, 79, 92, 0.85); min-height: 100vh; padding: 30px; }
@@ -92,13 +77,15 @@ p.message { text-align: center; font-weight: bold; font-size: 1.1rem; color: #ff
 #closeModal { position:absolute; top:20px; left:20px; background:#60a5fa; color:#fff; padding:10px 18px; border:none; border-radius:6px; cursor:pointer; font-weight: bold; }
 #closeModal:hover { background: #3b82f6; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <h1>Screen Foster Applications</h1>
 
 <?php if($message): ?>
-    <p class="message"><?php echo $message; ?></p>
+    <p class="message"><?= e($message) ?></p>
 <?php endif; ?>
 
 <?php if(count($fosters) === 0): ?>
@@ -121,31 +108,31 @@ p.message { text-align: center; font-weight: bold; font-size: 1.1rem; color: #ff
     </tr>
     <?php foreach($fosters as $f): ?>
     <tr>
-        <td><?php echo htmlspecialchars($f['Aname']); ?></td>
+        <td><?php echo htmlspecialchars($f['Aname'] ?? ''); ?></td>
         <td><?php echo htmlspecialchars($f['Species'] . ' / ' . $f['Animal_breed']); ?></td>
         <td><?php echo htmlspecialchars($f['full_name'] . ' (' . $f['id_number'] . ')'); ?></td>
-        <td><?php echo htmlspecialchars($f['date_of_birth']); ?></td>
+        <td><?php echo htmlspecialchars($f['date_of_birth'] ?? ''); ?></td>
         <td><?php echo htmlspecialchars($f['phone'] . ' / ' . $f['email']); ?></td>
-        <td><?php echo htmlspecialchars($f['full_address']); ?></td>
+        <td><?php echo htmlspecialchars($f['full_address'] ?? ''); ?></td>
         <td><?php echo htmlspecialchars($f['employment_status'] . ' / ' . $f['monthly_income']); ?></td>
         <td><?php echo htmlspecialchars($f['housing_type'] . ' / ' . ($f['has_fenced_yard'] ? 'Yes' : 'No')); ?></td>
         <td><?php echo htmlspecialchars($f['has_other_pets'] ? 'Yes: ' . $f['other_pets_details'] : 'No'); ?></td>
-        <td><?php echo htmlspecialchars($f['reason']); ?></td>
+        <td><?php echo htmlspecialchars($f['reason'] ?? ''); ?></td>
         <td>
             <?php if($f['id_copy']): ?>
-                <button class="view-id" data-file="<?php echo htmlspecialchars($f['id_copy']); ?>">View</button>
+                <button class="view-id" data-file="<?php echo htmlspecialchars($f['id_copy'] ?? ''); ?>">View</button>
             <?php else: ?>N/A<?php endif; ?>
         </td>
         <td>
-            <a href="?action=approve&id=<?php echo $f['foster_id']; ?>" class="btn approve">Approve</a>
-            <a href="?action=reject&id=<?php echo $f['foster_id']; ?>" class="btn reject">Reject</a>
+            <a href="?action=approve&id=<?= e($f['foster_id']) ?>" class="btn approve">Approve</a>
+            <a href="?action=reject&id=<?= e($f['foster_id']) ?>" class="btn reject">Reject</a>
         </td>
     </tr>
     <?php endforeach; ?>
 </table>
 <?php endif; ?>
 
-<a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+<a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 
 <!-- Modal for viewing ID -->
 <div id="idModal">

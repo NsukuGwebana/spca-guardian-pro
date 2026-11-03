@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Gateway - AnimalGuardian</title>
+    <title>Payment Gateway | SPCA Guardian Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { 
@@ -154,6 +154,9 @@
     </style>
 </head>
 <body>
+<script src="site-nav.js"></script>
+    <div id="confirmationMessage" class="message"></div>
+
     <div class="overlay">
         <div class="container">
             <div class="header">
@@ -251,21 +254,13 @@
                     setTimeout(() => {
                         document.getElementById('payment-form').style.display = 'none';
                         document.getElementById('success-message').style.display = 'block';
-                        // Extra thanks for large donations (shown only after payment succeeds)
-                        if (parseFloat(amount) > 500) {
-                            const note = document.createElement('p');
-                            note.style.color = 'var(--accent-color)';
-                            note.style.fontWeight = 'bold';
-                            note.textContent = '🌟 Your generous contribution is deeply appreciated. You\'ve made a real impact!';
-                            document.getElementById('success-message').appendChild(note);
-                        }
                     }, 2000);
                 }
             });
 
             // ✅ Back button function
             document.getElementById('back-btn').addEventListener('click', function () {
-                window.location.href = "Homepage.html"; // donors are public visitors, so return them to the homepage
+                window.location.href = "Homepage.html";
             });
 
             function validateForm() {
@@ -290,7 +285,21 @@
             }
         });
    </script>
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const amount = parseFloat(params.get("amount"));
 
+  const messageBox = document.getElementById("confirmationMessage");
+  messageBox.style.display = "block"; // Show the message box
+
+  let message = `<i>✔</i><br>Thank you for your payment of <strong>R${amount.toFixed(2)}</strong>.`;
+
+  if (amount > 500) {
+    message += `<br><br><span style="color: var(--accent-color); font-weight: bold;">🌟 Your generous contribution is deeply appreciated. You've made a real impact!</span>`;
+  }
+
+  messageBox.innerHTML = message;
+</script>
 
 
 </body>

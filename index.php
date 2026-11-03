@@ -1,4 +1,5 @@
 <?php
-// Send visitors who open the site's root address to the public homepage.
-header('Location: Homepage.html');
+require_once __DIR__ . '/bootstrap.php';
+// Send visitors who open the site root to the homepage
+header("Location: Homepage.html");
 exit;

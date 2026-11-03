@@ -1,24 +1,13 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 // Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// DB connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
-
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-$conn->set_charset("utf8mb4");
+$conn = db();
 
 // Check if search term is provided
 if (isset($_POST['search_term']) && !empty($_POST['search_term'])) {
-    $searchTerm = $conn->real_escape_string($_POST['search_term']);
+    $searchTerm = trim($_POST['search_term']);
+    $like = '%' . $searchTerm . '%';
     
     // Build the query with wildcard search across multiple fields
     $query = "SELECT 
@@ -27,18 +16,11 @@ if (isset($_POST['search_term']) && !empty($_POST['search_term'])) {
                 Intake_date, status, animal_picture, treatment_status, seen
               FROM animals 
               WHERE is_deleted = 0 
-                AND (Aname LIKE '%$searchTerm%' 
-                     OR Species LIKE '%$searchTerm%' 
-                     OR Animal_breed LIKE '%$searchTerm%' 
-                     OR Color LIKE '%$searchTerm%' 
-                     OR Kennel_status LIKE '%$searchTerm%' 
-                     OR Health_status LIKE '%$searchTerm%' 
-                     OR status LIKE '%$searchTerm%' 
-                     OR treatment_status LIKE '%$searchTerm%'
-                     OR id LIKE '%$searchTerm%')
+                AND (Aname LIKE ? OR Species LIKE ? OR Animal_breed LIKE ? OR Color LIKE ? OR Kennel_status LIKE ?
+                     OR Health_status LIKE ? OR status LIKE ? OR treatment_status LIKE ? OR id LIKE ?)
               ORDER BY Aname";
     
-    $result = $conn->query($query);
+    $result = q($query, array_fill(0, 9, $like)); // prepared statement
     
     $animals = array();
     
@@ -54,6 +36,4 @@ if (isset($_POST['search_term']) && !empty($_POST['search_term'])) {
 } else {
     echo json_encode(array());
 }
-
-$conn->close();
 ?>

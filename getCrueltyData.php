@@ -1,16 +1,10 @@
 <?php
-require_once __DIR__ . '/config.php';
-// Database connection
-$serverName = DB_HOST;
-$username = DB_USER;
-$password = DB_PASS;
-$database = DB_NAME;
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 
-$conn = new mysqli($serverName, $username, $password, $database);
+$conn = db();
 
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Database connection failed: " . $conn->connect_error]));
-}
 
 // Get filter parameters
 $timeFilter = $_GET['time'] ?? 'all';
@@ -19,6 +13,7 @@ $crueltyFilter = $_GET['cruelty'] ?? 'all';
 
 // Build WHERE clause based on filters
 $whereClause = "WHERE 1=1";
+$whereParams = []; // values for the ? placeholders
 
 if ($timeFilter !== 'all') {
     if ($timeFilter === 'month') {
@@ -29,11 +24,13 @@ if ($timeFilter !== 'all') {
 }
 
 if ($animalFilter !== 'all') {
-    $whereClause .= " AND animal_type = '" . $conn->real_escape_string($animalFilter) . "'";
+    $whereClause .= " AND animal_type = ?";
+    $whereParams[] = (string)$animalFilter;
 }
 
 if ($crueltyFilter !== 'all') {
-    $whereClause .= " AND cruelty_type = '" . $conn->real_escape_string($crueltyFilter) . "'";
+    $whereClause .= " AND cruelty_type = ?";
+    $whereParams[] = (string)$crueltyFilter;
 }
 
 // Get summary data
@@ -43,17 +40,17 @@ $summary = [
     'common_animal' => 'N/A'
 ];
 
-$result = $conn->query("SELECT COUNT(*) as total FROM cruelty_report $whereClause");
+$result = q("SELECT COUNT(*) as total FROM cruelty_report $whereClause", $whereParams);
 if ($result) {
     $summary['total_reports'] = $result->fetch_assoc()['total'];
 }
 
-$result = $conn->query("SELECT cruelty_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY cruelty_type ORDER BY count DESC LIMIT 1");
+$result = q("SELECT cruelty_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY cruelty_type ORDER BY count DESC LIMIT 1", $whereParams);
 if ($result && $result->num_rows > 0) {
     $summary['common_cruelty'] = $result->fetch_assoc()['cruelty_type'];
 }
 
-$result = $conn->query("SELECT animal_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY animal_type ORDER BY count DESC LIMIT 1");
+$result = q("SELECT animal_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY animal_type ORDER BY count DESC LIMIT 1", $whereParams);
 if ($result && $result->num_rows > 0) {
     $summary['common_animal'] = $result->fetch_assoc()['animal_type'];
 }
@@ -69,13 +66,13 @@ $data = [
 ];
 
 // Cruelty types data
-$result = $conn->query("SELECT cruelty_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY cruelty_type");
+$result = q("SELECT cruelty_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY cruelty_type", $whereParams);
 while ($row = $result->fetch_assoc()) {
     $data['cruelty_types'][] = [$row['cruelty_type'], (int)$row['count']];
 }
 
 // Animal types data
-$result = $conn->query("SELECT animal_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY animal_type");
+$result = q("SELECT animal_type, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY animal_type", $whereParams);
 while ($row = $result->fetch_assoc()) {
     $data['animal_types'][] = [$row['animal_type'], (int)$row['count']];
 }
@@ -93,20 +90,18 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // Location data (top 10 locations)
-$result = $conn->query("SELECT location, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY location ORDER BY count DESC LIMIT 10");
+$result = q("SELECT location, COUNT(*) as count FROM cruelty_report $whereClause GROUP BY location ORDER BY count DESC LIMIT 10", $whereParams);
 while ($row = $result->fetch_assoc()) {
     $data['locations'][] = [$row['location'], (int)$row['count']];
 }
 
 // Recent reports
-$result = $conn->query("SELECT date, reporter_name, animal_type, cruelty_type, location FROM cruelty_report $whereClause ORDER BY date DESC LIMIT 10");
+$result = q("SELECT date, reporter_name, animal_type, cruelty_type, location FROM cruelty_report $whereClause ORDER BY date DESC LIMIT 10", $whereParams);
 while ($row = $result->fetch_assoc()) {
     $data['recent_reports'][] = $row;
 }
 
 // Close connection
-$conn->close();
-
 // Return JSON response
 header('Content-Type: application/json');
 echo json_encode($data);

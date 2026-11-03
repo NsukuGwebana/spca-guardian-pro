@@ -1,19 +1,11 @@
 <?php
-require_once __DIR__ . '/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 
-// Database connection
-$server = DB_HOST;
-$user   = DB_USER;
-$pass   = DB_PASS;
-$db     = DB_NAME;
+$conn = db();
 
-$conn = new mysqli($server, $user, $pass, $db);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
-$conn->set_charset("utf8");
-
-if(!isset($_GET['donor_id']) || !isset($_GET['date'])) die("Invalid request.");
+if (!isset($_GET['donor_id'], $_GET['date'])) show_error_page(400, 'Missing details', 'Please open this from the donations list.');
 
 $donor_id = $_GET['donor_id'];
 $date = $_GET['date'];
@@ -25,11 +17,8 @@ $sql = "SELECT d.dtype, d.dlocation, d.damount, d.donor_id, d.ddate, d.seen,
         JOIN donor r ON d.donor_id = r.donor_id
         WHERE d.donor_id = ? AND d.ddate = ? LIMIT 1";
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $donor_id, $date);
-$stmt->execute();
-$result = $stmt->get_result();
-if(!$result || $result->num_rows == 0) die("Donation not found.");
+$result = q($sql, [(int)$donor_id, (string)$date]); // prepared statement: values can't change the SQL
+if ($result->num_rows == 0) show_error_page(404, 'Donation not found', "We couldn't find that donation. It may have been removed.");
 
 $row = $result->fetch_assoc();
 ?>
@@ -38,7 +27,7 @@ $row = $result->fetch_assoc();
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>View Receipt</title>
+<title>View Receipt | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -100,32 +89,40 @@ h2, h3 {
     background-color: #3b82f6;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <div class="receipt-container">
         <h2>Animal Guardian Organization</h2>
         <p style="text-align:center;">Old Bay Road, Makhanda 6139, South Africa | Tel: +27 76 856 0086 | Email: spcaguardianpro@gmail.com</p>
         <hr style="border-color:#60a5fa;">
         <h3>Donation Receipt</h3>
+        <?php if (!empty($_SESSION['flash'])): ?><div class="flash <?= e($_SESSION['flash'][0]) ?>"><?= e($_SESSION['flash'][1]) ?></div><?php unset($_SESSION['flash']); endif; ?>
         <div class="receipt-details">
-            <p><strong>Receipt No:</strong> RCPT-<?php echo $row['donor_id'].'-'.date('Ymd'); ?></p>
-            <p><strong>Date:</strong> <?php echo $row['ddate']; ?></p>
-            <p><strong>Donor:</strong> <?php echo $row['F_name'].' '.$row['L_name']; ?></p>
-            <p><strong>Email:</strong> <?php echo $row['E_address']; ?></p>
-            <p><strong>Phone:</strong> <?php echo $row['Phone_num']; ?></p>
-            <p><strong>Donation Amount:</strong> R<?php echo $row['damount']; ?></p>
-            <p><strong>Donation Type:</strong> <?php echo $row['dtype']; ?></p>
-            <p><strong>Location:</strong> <?php echo $row['dlocation']; ?></p>
+            <p><strong>Receipt No:</strong> RCPT-<?= (int)$row['donor_id'] . '-' . date('Ymd') ?></p>
+            <p><strong>Date:</strong> <?= e($row['ddate']) ?></p>
+            <p><strong>Donor:</strong> <?= e($row['F_name'] . ' ' . $row['L_name']) ?></p>
+            <p><strong>Email:</strong> <?= e($row['E_address']) ?></p>
+            <p><strong>Phone:</strong> <?= e($row['Phone_num']) ?></p>
+            <p><strong>Donation Amount:</strong> R<?= e($row['damount']) ?></p>
+            <p><strong>Donation Type:</strong> <?= e($row['dtype']) ?></p>
+            <p><strong>Location:</strong> <?= e($row['dlocation']) ?></p>
         </div>
 
         <?php if($row['seen'] == 0): ?>
-            <a href="send_receipt.php?donor_id=<?php echo $row['donor_id']; ?>&date=<?php echo $row['ddate']; ?>" class="action-btn">Send Receipt</a>
+            <form method="post" action="send_receipt.php" style="display:inline">
+                <input type="hidden" name="donor_id" value="<?= (int)$row['donor_id'] ?>">
+                <input type="hidden" name="date" value="<?= e($row['ddate']) ?>">
+                <input type="hidden" name="back" value="receipt">
+                <button type="submit" class="action-btn">Send receipt</button>
+            </form>
         <?php else: ?>
             <p style="margin-top:10px; color:#4ade80; font-weight:bold;">Receipt already sent</p>
         <?php endif; ?>
         
-        <button class="action-btn" onclick="window.history.back()">⬅ Back</button>
+        <a href="viewDonations.php" class="back-btn">&larr; Back to donations</a>
     </div>
 </div>
 </body>

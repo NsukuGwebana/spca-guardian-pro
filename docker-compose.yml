@@ -1,0 +1,46 @@
+# Run the whole system locally:   docker compose up --build
+#   App:            http://localhost:8080        (staff sign-in: admin / Demo12345)
+#   Emails it sends: http://localhost:8025       (Mailpit catches them; nothing leaves your computer)
+services:
+  app:
+    build: .
+    ports: ["8080:80"]
+    environment:
+      DB_HOST: db
+      DB_USER: spca
+      DB_PASS: spca
+      DB_NAME: sysmasters
+      MAIL_HOST: mail
+      MAIL_PORT: 1025
+      MAIL_USER: ""
+      MAIL_PASS: ""
+      MAIL_SECURE: none
+      MAIL_FROM: noreply@spca.local
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sysmasters
+      MYSQL_USER: spca
+      MYSQL_PASSWORD: spca
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/migrations/001_security_and_workflows.sql:/docker-entrypoint-initdb.d/02_migration.sql:ro
+      - ./database/migrations/004_volunteer_dashboard.sql:/docker-entrypoint-initdb.d/03_volunteer.sql:ro
+      - ./database/docker/seed_staff.sql:/docker-entrypoint-initdb.d/04_seed_staff.sql:ro
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      retries: 30
+
+  mail:
+    image: axllent/mailpit:v1.20
+    ports: ["8025:8025"]
+
+volumes:
+  dbdata:

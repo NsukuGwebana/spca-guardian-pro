@@ -1,4 +1,7 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+if (empty($_GET['id'])) { header('Location: regA.php'); exit; } // no animal chosen
 ob_start(); // Start output buffering to prevent accidental output
 
 include("databaseConnection.php");
@@ -9,8 +12,7 @@ $med = null;
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $sql = "SELECT * FROM animals WHERE id = $id AND is_deleted = 0";
-    $result = $conn->query($sql);
+    $result = q("SELECT * FROM animals WHERE id = ? AND is_deleted = 0", [$id]);
 
     if ($result && $result->num_rows > 0) {
         $animal = $result->fetch_assoc();
@@ -19,15 +21,11 @@ if (isset($_GET['id'])) {
         exit("Animal not found or removed.");
     }
 
-    $med_sql = "SELECT * FROM medical_care WHERE id = $id ORDER BY Appointment_Date DESC LIMIT 1";
-    $med_result = $conn->query($med_sql);
+    $med_result = q("SELECT * FROM medical_care WHERE id = ? ORDER BY Appointment_Date DESC LIMIT 1", [$id]);
     if ($med_result && $med_result->num_rows > 0) {
         $med = $med_result->fetch_assoc();
     }
 }
-
-$conn->close();
-
 // Company info
 $companyName = "SPCA";
 $systemName = "Animal Guardian Pro";
@@ -114,7 +112,7 @@ $pdf->writeHTML($html, true, false, true, false, '');
 // ✅ Clean any accidental output before sending headers
 ob_end_clean();
 
-$pdf->Output('animal_profile_' . $animal['id'] . '_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $animal['Aname']) . '.pdf', 'D');
+$pdf->Output('animal_profile_' . $animal['id'] . '_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $animal['Aname'] ?? 'animal') . '.pdf', 'D');
 exit;
 ?>
 

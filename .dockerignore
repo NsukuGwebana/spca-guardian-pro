@@ -1,0 +1,8 @@
+.git
+.github
+vendor
+tests
+config.php
+logs/*.log
+database/infinityfree_sample_data.sql
+INFINITYFREE.md

@@ -1,28 +1,11 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 // get_home_stats.php
 header('Content-Type: application/json');
 
-// Database connection
-$server = DB_HOST;
-$user = DB_USER;
-$pass = DB_PASS;
-$db = DB_NAME;
-
 // Create connection
-$conn = new mysqli($server, $user, $pass, $db);
+$conn = db();
 
-// Check connection
-if ($conn->connect_error) {
-    // Return default values if connection fails
-    echo json_encode([
-        'availableAnimals' => 42,
-        'pendingAdoptions' => 18,
-        'newCrueltyReports' => 7,
-        'recentDonations' => 23
-    ]);
-    exit();
-}
 
 // Fetch data from database
 $data = [];
@@ -64,8 +47,6 @@ if ($result && $row = $result->fetch_assoc()) {
 }
 
 // Close connection
-$conn->close();
-
 // Return data as JSON
 echo json_encode($data);
 ?>

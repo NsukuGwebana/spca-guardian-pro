@@ -1,9 +1,11 @@
+<?php $ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adoption Rates Analysis</title>
+    <title>Adoption Rates Analysis | SPCA Guardian Pro</title>
     
     <!-- Load Google Charts Library -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -153,28 +155,21 @@
             border-left: 4px solid #3498db;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Adoption Rates Analysis</h1>
 
     <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
     // PHP code unchanged
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
     
-    $serverName = DB_HOST;
-    $username   = DB_USER;
-    $password   = DB_PASS;
-    $database   = DB_NAME;
+
     
-    $conn = new mysqli($serverName, $username, $password, $database);
+    $conn = db();
     
-    if ($conn->connect_error) { 
-        echo "<div class='error'>Database Connection failed: " . $conn->connect_error . "</div>"; 
-        exit; 
-    }
     
     $animalTypeData = [];
     $statusData = [];
@@ -201,7 +196,7 @@ require_once __DIR__ . '/config.php';
             $animalTypeData[] = ['No Data', 0];
         }
     } else {
-        $errors[] = "Error in animal type query: " . $conn->error;
+        $errors[] = "Error in animal type query. Please try again.";
         $animalTypeData[] = ['Error', 0];
     }
     
@@ -218,7 +213,7 @@ require_once __DIR__ . '/config.php';
             $statusData[] = ['No Data', 0];
         }
     } else {
-        $errors[] = "Error in status query: " . $conn->error;
+        $errors[] = "Error in status query. Please try again.";
         $statusData[] = ['Error', 0];
     }
     
@@ -243,12 +238,9 @@ require_once __DIR__ . '/config.php';
             $monthlyData[] = ['No Data', 0];
         }
     } else {
-        $errors[] = "Error in monthly query: " . $conn->error;
+        $errors[] = "Error in monthly query. Please try again.";
         $monthlyData[] = ['Error', 0];
     }
-    
-    $conn->close();
-    
     if (!empty($errors)) {
         echo "<div class='info'><strong>Information:</strong><ul>";
         foreach ($errors as $error) {
@@ -309,7 +301,7 @@ require_once __DIR__ . '/config.php';
         <div id="monthly_chart" class="chart"></div>
     </div>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <script type="text/javascript">

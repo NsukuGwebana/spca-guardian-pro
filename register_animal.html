@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Register Animal</title>
+<title>Register Animal | SPCA Guardian Pro</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -198,113 +198,31 @@ function previewPhoto(event) {
     }
 }
 
+// Animals that need vet care aren't offered for adoption until they're well
 function updateStatusBasedOnHealth() {
-    var healthStatus = document.getElementById("Health_status").value;
-    var statusField = document.getElementById("status");
-    var statusNote = document.getElementById("statusNote");
-    var statusNoteUnhealthy = document.getElementById("statusNoteUnhealthy");
-
-    if (healthStatus === "Healthy" || healthStatus === "") {
-        // Default to Available if nothing selected
-        statusField.value = "Available";
-        if (statusNote) statusNote.style.display = "block";
-        if (statusNoteUnhealthy) statusNoteUnhealthy.style.display = "none";
-    } else if (healthStatus === "Unhealthy") {
-        // An unhealthy animal must not be offered for adoption
-        statusField.value = "Not Available";
-        if (statusNote) statusNote.style.display = "none";
-        if (statusNoteUnhealthy) statusNoteUnhealthy.style.display = "block";
-    }
-
-    console.log("Status field updated:", statusField.value);
+    var health = document.getElementById("Health_status").value;
+    document.getElementById("status").value = (health === "Unhealthy") ? "Not Available" : "Available";
 }
 
-function isManualAllocation() {
-    var manual = document.getElementById("manual_allocate");
-    return manual ? manual.checked : false;
-}
-
-function toggleKennelSelection() {
-    var manualSelect = isManualAllocation();
-    var kennelSelection = document.getElementById("kennel_selection");
-    
-    if (manualSelect) {
-        kennelSelection.style.display = "block";
-        loadAvailableKennels();
-    } else {
-        kennelSelection.style.display = "none";
-    }
-}
-
-function loadAvailableKennels() {
-    var kennelSelect = document.getElementById("kennel_id");
-    var species = document.getElementById("Species").value;
-    var width = document.querySelector('input[name="width"]').value;
-    var height = document.querySelector('input[name="height"]').value;
-    
-    kennelSelect.innerHTML = '<option value="">Loading available kennels...</option>';
-    
-    fetch('get_available_kennels.php?species=' + species + '&width=' + width + '&height=' + height)
-        .then(response => response.json())
-        .then(data => {
-            kennelSelect.innerHTML = '';
-            if (data.length === 0) {
-                kennelSelect.innerHTML = '<option value="">No suitable kennels available</option>';
-                return;
-            }
-            data.forEach(kennel => {
-                var option = document.createElement("option");
-                option.value = kennel.kennel_id;
-                option.textContent = kennel.kennel_name + ' (' + kennel.max_width + 'm × ' + kennel.max_height + 'm) - ' + kennel.status;
-                kennelSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading kennels:', error);
-            kennelSelect.innerHTML = '<option value="">Error loading kennels</option>';
-        });
-}
-
-// Attach listeners once the form exists (this script runs in <head>, before the form is built)
-document.addEventListener('DOMContentLoaded', function() {
-    ['input[name="width"]', 'input[name="height"]', '#Species'].forEach(function(selector) {
-        var field = document.querySelector(selector);
-        if (!field) return;
-        field.addEventListener('change', function() {
-            if (isManualAllocation()) {
-                loadAvailableKennels();
-            }
-        });
-    });
-});
-
-function validateForm() {
-    console.log("Form validation started");
-    return true;
-}
-
-// ✅ Run on page load, dropdown change, and form submit
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
     updateStatusBasedOnHealth();
     document.getElementById("Health_status").addEventListener('change', updateStatusBasedOnHealth);
-    document.querySelector('form').addEventListener('submit', function() {
-        updateStatusBasedOnHealth();
-    });
 });
 </script>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
 <div class="overlay">
 <div class="container">
-    <h2>Register Animal</h2>
-    <form method="POST" action="register_animal.php" enctype="multipart/form-data" onsubmit="return validateForm()">
+    <h2>Register an animal</h2>
+    <form method="POST" action="register_animal.php" enctype="multipart/form-data" >
 
-        <div class="section-title">Basic Information</div>
         
-        <label>Animal Name:</label>
-        <input type="text" name="Aname" required>
+        <label for="Aname">Name *</label>
+        <input type="text" id="Aname" name="Aname" required>
         
-        <label>Species:</label>
+        <label for="Species">Species *</label>
         <select id="Species" name="Species" required onchange="updateBreeds()">
             <option value="">Select Species</option>
             <option value="Dog">Dog</option>
@@ -315,60 +233,41 @@ document.addEventListener('DOMContentLoaded', () => {
         </select>
 
         <div id="otherSpecies" style="display:none;">
-            <label>Specify Other Species:</label>
+            <label for="OtherSpecies">Which species?</label>
             <input type="text" id="OtherSpecies" name="OtherSpecies">
         </div>
 
-        <label>Breed:</label>
+        <label for="Breed">Breed</label>
         <select id="Breed" name="Animal_breed" onchange="toggleBreedInput()" disabled>
             <option value="">Select Species First</option>
         </select>
 
         <div id="otherBreed" style="display:none;">
-            <label>Specify Other Breed:</label>
+            <label for="OtherBreed">Which breed?</label>
             <input type="text" id="OtherBreed" name="OtherBreed">
         </div>
 
-        <label>Age (years):</label>
-        <input type="number" name="Aage" min="0" value="1">
-        
-        <label>Color:</label>
-        <input type="text" name="Color" value="Unknown">
-        
-        <div class="section-title">Physical Characteristics</div>
-        
-        <label>Weight (kg):</label>
-        <input type="number" name="Aweight" step="0.01" min="0.1" value="5.0">
-        
-        <label>Width (meters):</label>
-        <input type="number" name="width" step="0.01" min="0.1" required value="1.0">
-        
-        <label>Height (meters):</label>
-        <input type="number" name="height" step="0.01" min="0.1" required value="1.0">
-        
-        <div class="section-title">Health & Status</div>
-        
-        <label>Health Status:</label>
-        <select id="Health_status" name="Health_status" required>
-            <option value="">--Select--</option>
-            <option value="Healthy" selected>Healthy</option>
-            <option value="Unhealthy">Unhealthy</option>
+        <div class="two-col">
+            <div><label for="Aage">Age (years)</label>
+            <input type="number" id="Aage" name="Aage" min="0" value="1"></div>
+            <div><label for="Color">Colour</label>
+            <input type="text" id="Color" name="Color" placeholder="e.g. Brown and white"></div>
+        </div>
+        <label for="size">Size *</label>
+        <select id="size" name="size" required>
+            <option value="">Choose a size</option>
+            <option value="Small">Small (cat, rabbit, small dog, bird)</option>
+            <option value="Medium" selected>Medium (most dogs)</option>
+            <option value="Large">Large (big dogs)</option>
         </select>
+        <label for="Health_status">Health *</label>
+        <select id="Health_status" name="Health_status" required>
+            <option value="Healthy" selected>Healthy</option>
+            <option value="Unhealthy">Needs vet care</option>
+        </select>
+        <input type="hidden" id="status" name="status" value="Available">
         
-        <label>Intake Date:</label>
-        <input type="date" name="Intake_date" required>
-        
-    <label>Status:</label>
-<select id="status" name="status" required>
-    <option value="">--Select Status--</option>
-    <option value="Available" selected>Available</option>
-    <option value="Pending">Pending</option>
-    <option value="Not Available">Not Available</option>
-</select>
-
-        <div class="section-title">Photo</div>
-        
-        <label>Photo:</label>
+        <label>Photo</label>
         <input type="file" name="animal_picture" accept="image/*" onchange="previewPhoto(event)">
         
         <div id="photoPreview" style="display:none;">
@@ -376,29 +275,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <img id="previewImage" src="" alt="Preview" width="200">
         </div>
         
-        <div class="section-title">Kennel Allocation</div>
-        
-        <label>Allocation Method:</label>
-        <div class="radio-group">
-            <input type="radio" id="auto_allocate" name="allocation_method" value="auto" checked onchange="toggleKennelSelection()">
-            <label for="auto_allocate">Automatic Allocation</label>
+        <input type="hidden" name="allocation_method" value="auto"><!-- a kennel is chosen automatically by size and species -->
+        <p class="form-intro">A suitable kennel is chosen automatically from the size and species.</p>
+        <div class="btn-container">
+            <button type="submit" class="btn">Register animal</button>
+            <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
         </div>
-       
-
-
-        <button type="submit" class="btn">Register Animal</button>
-        <a href='admin dashboard.php' class="btn back-btn">Back to Dashboard</a>
     </form>
 </div>
 </div>
 
-<script>
-// Set intake date to today by default
-document.querySelector('input[name="Intake_date"]').valueAsDate = new Date();
 
-// Ensure status is updated on page load
-updateStatusBasedOnHealth();
-</script>
+<script src="csrf.js"></script>
 </body>
 </html>
 

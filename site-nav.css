@@ -1,0 +1,119 @@
+/* SPCA Guardian Pro: the public website's top bar, shared by every public page.
+   It matches the homepage navigation. Everything is scoped under .spca-sitenav
+   so it looks the same whatever styles a page has of its own. */
+.spca-sitenav, .spca-sitenav * { box-sizing: border-box; }
+.spca-sitenav {
+  position: sticky; top: 0; z-index: 1000;
+  display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  padding: 15px 30px; margin: 0;
+  background: #134f5c; color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 16px; line-height: 1.4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  text-align: left;
+}
+.spca-sitenav a { color: #fff; text-decoration: none; }
+
+/* Logo and name */
+.spca-sitenav .sn-brand { display: flex; align-items: center; gap: 10px; flex: none; }
+.spca-sitenav .sn-logo {
+  width: 70px; height: 70px; border-radius: 50%; object-fit: cover; display: block;
+  background-color: #567491; padding: 5px; border: 2px solid #567491; margin: 0;
+}
+.spca-sitenav .sn-name { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.spca-sitenav .sn-name strong { font-size: 1.5rem; font-weight: 700; line-height: 1; white-space: nowrap; color: #fff; letter-spacing: normal; }
+.spca-sitenav .sn-name span { font-size: 0.9rem; font-weight: 400; margin-top: 5px; white-space: nowrap; color: #fff; }
+
+/* Links */
+.spca-sitenav .sn-right { display: flex; align-items: center; gap: 25px; }
+.spca-sitenav .sn-links { list-style: none; display: flex; gap: 25px; align-items: center; padding: 0; margin: 0; }
+.spca-sitenav .sn-links > li { position: relative; font-weight: 700; margin: 0; padding: 0; white-space: nowrap; }
+.spca-sitenav .sn-links > li > a,
+.spca-sitenav .sn-links > li > button {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 0;
+  color: #fff; font: inherit; font-weight: 700; background: none; border: 0; cursor: pointer;
+  position: relative; transition: color .3s;
+}
+.spca-sitenav .sn-links > li > a::after,
+.spca-sitenav .sn-links > li > button::after {
+  content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 0; background-color: #60a5fa; transition: width .3s;
+}
+.spca-sitenav .sn-links > li > a:hover, .spca-sitenav .sn-links > li > button:hover,
+.spca-sitenav .sn-links > li > a[aria-current="page"] { color: #60a5fa; }
+.spca-sitenav .sn-links > li > a:hover::after, .spca-sitenav .sn-links > li > button:hover::after { width: 100%; }
+.spca-sitenav .sn-chev { font-size: .75em; }
+
+/* Get Involved menu */
+.spca-sitenav .sn-menu {
+  display: none; position: absolute; top: 100%; left: 0; z-index: 1001;
+  list-style: none; margin: 0; padding: 10px 0; min-width: 240px;
+  background: #fff; border-radius: 5px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.spca-sitenav .sn-links > li:hover > .sn-menu,
+.spca-sitenav .sn-links > li.open > .sn-menu { display: block; }
+.spca-sitenav .sn-menu li { margin: 0; padding: 0; }
+.spca-sitenav .sn-menu a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: #333; font-weight: 400; white-space: nowrap; }
+.spca-sitenav .sn-menu a:hover, .spca-sitenav .sn-menu a[aria-current="page"] { background: #f0f0f0; color: #2c3e50; }
+.spca-sitenav .sn-menu i { width: 18px; text-align: center; color: #134f5c; }
+
+/* Login button */
+.spca-sitenav .sn-login {
+  padding: 8px 15px; background: #2c3e50; border-radius: 20px; font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap;
+}
+.spca-sitenav .sn-login:hover { background: #1f2d3a; }
+
+/* Search */
+.spca-sitenav .sn-search { display: flex; align-items: center; position: relative; margin: 0; }
+.spca-sitenav form.sn-search input[type=search] {
+  border: 1px solid rgba(255, 255, 255, 0.3); padding: 8px 40px 8px 15px; border-radius: 20px; outline: none;
+  width: 180px; margin: 0; background-color: rgba(255, 255, 255, 0.2); color: #fff; font: 14px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all .3s ease; box-shadow: none; height: auto; min-height: 0; display: block; -webkit-appearance: none; appearance: none;
+}
+.spca-sitenav form.sn-search input[type=search]::placeholder { color: rgba(255, 255, 255, 0.7); }
+.spca-sitenav form.sn-search input[type=search]:focus { width: 220px; background-color: rgba(255, 255, 255, 0.3); }
+.spca-sitenav form.sn-search button[type=submit] {
+  position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; color: #fff; cursor: pointer; padding: 5px; margin: 0; width: auto; min-width: 0; height: auto; box-shadow: none; font-size: 14px; line-height: 1;
+}
+.spca-sitenav .sn-search-msg {
+  position: absolute; top: calc(100% + 8px); right: 0; background: #fff; color: #2c3e50; font-size: 13px;
+  padding: 8px 12px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,.2); white-space: nowrap;
+}
+mark.spca-find { background: #ffe066; color: inherit; padding: 0 1px; border-radius: 2px; }
+
+/* Phone menu button */
+.spca-sitenav .sn-burger { display: none; background: none; border: 1px solid rgba(255,255,255,.4); color: #fff; border-radius: 8px; padding: 8px 11px; font-size: 18px; cursor: pointer; }
+
+.spca-sitenav :focus-visible { outline: 2px solid #60a5fa; outline-offset: 3px; border-radius: 4px; }
+
+@media (max-width: 1100px) {
+  .spca-sitenav { padding: 12px 20px; }
+  .spca-sitenav .sn-right, .spca-sitenav .sn-links { gap: 18px; }
+  .spca-sitenav form.sn-search input[type=search] { width: 140px; }
+  .spca-sitenav form.sn-search input[type=search]:focus { width: 170px; }
+}
+@media (max-width: 992px) {
+  .spca-sitenav { flex-wrap: wrap; }
+  .spca-sitenav .sn-burger { display: block; }
+  .spca-sitenav .sn-right { display: none; width: 100%; flex-direction: column; align-items: stretch; gap: 14px; padding-top: 6px; }
+  .spca-sitenav.open .sn-right { display: flex; }
+  .spca-sitenav .sn-links { flex-direction: column; align-items: stretch; gap: 0; }
+  .spca-sitenav .sn-links > li > a, .spca-sitenav .sn-links > li > button { width: 100%; padding: 12px 4px; border-bottom: 1px solid rgba(255,255,255,.12); }
+  .spca-sitenav .sn-links > li > a::after, .spca-sitenav .sn-links > li > button::after { display: none; }
+  .spca-sitenav .sn-links > li:hover > .sn-menu { display: none; }
+  .spca-sitenav .sn-links > li.open > .sn-menu { display: block; }
+  .spca-sitenav .sn-menu { position: static; box-shadow: none; background: rgba(255,255,255,.06); border-radius: 8px; margin: 4px 0 8px; min-width: 0; }
+  .spca-sitenav .sn-menu a { color: #fff; white-space: normal; }
+  .spca-sitenav .sn-menu a:hover, .spca-sitenav .sn-menu a[aria-current="page"] { background: rgba(255,255,255,.12); color: #fff; }
+  .spca-sitenav .sn-menu i { color: #9fd8e4; }
+  .spca-sitenav .sn-login { text-align: center; }
+  .spca-sitenav form.sn-search input[type=search], .spca-sitenav form.sn-search input[type=search]:focus { width: 100%; max-width: none; }
+  .spca-sitenav .sn-search-msg { left: 0; right: auto; }
+}
+@media (max-width: 480px) {
+  .spca-sitenav { padding: 10px 16px; }
+  .spca-sitenav .sn-logo { width: 52px; height: 52px; }
+  .spca-sitenav .sn-name strong { font-size: 1.15rem; }
+  .spca-sitenav .sn-name span { font-size: .8rem; }
+}
+@media (prefers-reduced-motion: reduce) { .spca-sitenav * { transition: none !important; } }
+@media print { .spca-sitenav { display: none; } }

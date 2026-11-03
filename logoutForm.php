@@ -1,5 +1,8 @@
 <?php
-session_start();
+require_once __DIR__ . '/bootstrap.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+
+if (!empty($_SESSION['username'])) log_activity('Signed out');
 
 // Unset all session variables
 $_SESSION = array();

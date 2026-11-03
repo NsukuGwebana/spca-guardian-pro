@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Set the content type to JSON so the browser knows it's a JSON response
 header('Content-Type: application/json');
 
@@ -7,18 +9,9 @@ header('Content-Type: application/json');
 $location = $_GET['location'] ?? ''; 
 $startDate = $_GET['start_date'] ?? '2025-01-01'; // Default start date
 $endDate = $_GET['end_date'] ?? '2025-12-31'; // Default end date
-
-// Set up database connection
-$serverName = DB_HOST;
-$username   = DB_USER;
-$password   = DB_PASS;
-$database   = DB_NAME;
-$conn = new mysqli($serverName, $username, $password, $database);
+$conn = db();
 
 // Check connection
-if ($conn->connect_error) {
-    die("❌ Database Connection failed: " . $conn->connect_error);
-}
 
 // Prepare SQL query to fetch data based on the filter parameters
 $query = "SELECT 
@@ -39,7 +32,7 @@ $query .= " GROUP BY YEAR(date), MONTH(date) ORDER BY year ASC, month ASC";
 // Prepare the statement
 $stmt = $conn->prepare($query);
 if ($stmt === false) {
-    die('MySQL prepare error: ' . $conn->error);
+    die('MySQL prepare error. Please try again.');
 }
 
 // Bind parameters and execute the query
@@ -67,5 +60,4 @@ echo json_encode($reports);
 
 // Close the statement and connection
 $stmt->close();
-$conn->close();
 ?>

@@ -1,4 +1,6 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 include("databaseConnection.php");
 
 // Handle actions BEFORE HTML output
@@ -8,22 +10,25 @@ if(isset($_GET['action']) && isset($_GET['id'])){
 
     switch($_GET['action']){
         case 'delete':
-            $sql="UPDATE kennels SET is_deleted=1, deleted_at=NOW() WHERE kennel_id=$id";
-            $message=$conn->query($sql) ? "Kennel moved to archive successfully." : "Error: ".$conn->error;
+            q("UPDATE kennels SET is_deleted=1, deleted_at=NOW() WHERE kennel_id = ?", [$id]);
+            $message = "Kennel moved to archive.";
+            log_activity('Archived kennel', 'Kennel #' . $id);
             break;
 
         case 'restore':
-            $sql="UPDATE kennels SET is_deleted=0, deleted_at=NULL WHERE kennel_id=$id";
-            $message=$conn->query($sql) ? "Kennel restored successfully." : "Error: ".$conn->error;
+            q("UPDATE kennels SET is_deleted=0, deleted_at=NULL WHERE kennel_id = ?", [$id]);
+            $message = "Kennel restored.";
+            log_activity('Restored kennel', 'Kennel #' . $id);
             break;
 
         case 'permanent_delete':
-            $sql="DELETE FROM kennels WHERE kennel_id=$id";
-            $message=$conn->query($sql) ? "Kennel permanently deleted." : "Error: ".$conn->error;
+            q("DELETE FROM kennels WHERE kennel_id = ?", [$id]);
+            $message = "Kennel permanently deleted.";
+            log_activity('Deleted kennel', 'Kennel #' . $id);
             break;
     }
 
-    header("Location: admin_kennel.php?message=".urlencode($message)."&view=".(isset($_GET['view'])?$_GET['view']:'active'));
+    header("Location: admin_kennel.php?message=".urlencode($message)."&view=".(($_GET['view'] ?? '') === 'archive' ? 'archive' : 'active'));
     exit();
 }
 
@@ -34,7 +39,7 @@ $where_clause=$view=='archive' ? "WHERE is_deleted=1" : "WHERE is_deleted=0";
 // Fetch kennels
 $sql="SELECT * FROM kennels $where_clause ORDER BY created_at DESC";
 $result=$conn->query($sql);
-if($result===FALSE){ die("<p>Unable to retrieve kennel data: ".$conn->error."</p>"); }
+
 
 // Function to calculate capacity
 function calculate_kennel_capacity($width, $height) {
@@ -51,7 +56,7 @@ function calculate_kennel_capacity($width, $height) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registered Kennels - AnimalGuardian</title>
+<title>Registered Kennels | SPCA Guardian Pro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root { 
@@ -98,11 +103,13 @@ table tr:hover{background-color:#e9f7f9; transform:scale(1.01); box-shadow:0 2px
 .action-buttons{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
 .back-btn{text-decoration:none; display:inline-block; margin-top:20px; padding:10px 16px; background:#60a5b3; color:#fff; border-radius:6px; margin-right:10px;}
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
-<?php if(isset($_GET['message'])){ echo "<div class='message'>".htmlspecialchars($_GET['message'])."</div>"; } ?>
+<?php if(isset($_GET['message'])){ echo "<div class='message'>".htmlspecialchars($_GET['message'] ?? '')."</div>"; } ?>
 
 <div class="header">
     <h2>Registered Kennels</h2>
@@ -135,9 +142,9 @@ if($result->num_rows>0){
     while($row=$result->fetch_assoc()){
         $capacity=calculate_kennel_capacity($row['max_width'],$row['max_height']);
         echo "<tr>";
-        echo "<td>{$row['kennel_id']}</td>";
-        echo "<td>{$row['kennel_name']}</td>";
-        echo "<td>{$row['max_width']}m × {$row['max_height']}m</td>";
+        echo "<td>" . e($row['kennel_id']) . "</td>";
+        echo "<td>" . e($row['kennel_name']) . "</td>";
+        echo "<td>" . e($row['max_width']) . "m × " . e($row['max_height']) . "m</td>";
         
         // Species compatibility badge
         echo "<td><span class='species-badge species-".strtolower($row['species_compatibility'])."'>";
@@ -150,10 +157,10 @@ if($result->num_rows>0){
             case 'emergency': echo "first-aid"; break;
             default: echo "paw";
         }
-        echo "'></i> {$row['species_compatibility']}</span></td>";
+        echo "'></i> " . e($row['species_compatibility']) . "</span></td>";
         
         // Kennel type badge
-        echo "<td><span class='type-badge'>{$row['kennel_type']}</span></td>";
+        echo "<td><span class='type-badge'>" . e($row['kennel_type']) . "</span></td>";
         
         // Status badge
         echo "<td><span class='status-badge ";
@@ -168,16 +175,16 @@ if($result->num_rows>0){
             case 'Occupied': echo 'times-circle'; break;
             case 'Maintenance': echo 'tools'; break;
         }
-        echo "'></i> {$row['status']}</span></td>";
+        echo "'></i> " . e($row['status']) . "</span></td>";
         
-        echo "<td>".htmlspecialchars($row['notes'])."</td>";
+        echo "<td>".htmlspecialchars($row['notes'] ?? '')."</td>";
         echo "<td class='action-buttons'>";
         if($view=='active'){
-            echo "<a class='btn' href='edit_kennel.php?id={$row['kennel_id']}'><i class='fas fa-edit'></i> Edit</a>";
-            echo "<a class='btn' href='?action=delete&id={$row['kennel_id']}&view={$view}' onclick='return confirm(\"Move to archive?\")'><i class='fas fa-archive'></i> Archive</a>";
+            echo "<a class='btn' href='edit_kennel.php?id=" . e($row['kennel_id']) . "'><i class='fas fa-edit'></i> Edit</a>";
+            echo "<a class='btn' href='?action=delete&id=" . e($row['kennel_id']) . "&view={$view}' onclick='return confirm(\"Move to archive?\")'><i class='fas fa-archive'></i> Archive</a>";
         } else {
-            echo "<a class='btn' href='?action=restore&id={$row['kennel_id']}&view={$view}' onclick='return confirm(\"Restore this kennel?\")'><i class='fas fa-undo'></i> Restore</a>";
-            echo "<a class='btn' href='?action=permanent_delete&id={$row['kennel_id']}&view={$view}' onclick='return confirm(\"Permanently delete? This cannot be undone.\")'><i class='fas fa-trash'></i> Delete</a>";
+            echo "<a class='btn' href='?action=restore&id=" . e($row['kennel_id']) . "&view={$view}' onclick='return confirm(\"Restore this kennel?\")'><i class='fas fa-undo'></i> Restore</a>";
+            echo "<a class='btn' href='?action=permanent_delete&id=" . e($row['kennel_id']) . "&view={$view}' onclick='return confirm(\"Permanently delete? This cannot be undone.\")'><i class='fas fa-trash'></i> Delete</a>";
         }
         echo "</td>";
         echo "</tr>";
@@ -192,7 +199,7 @@ if($result->num_rows>0){
 
 <div style="display: flex; justify-content: center; margin-top: 20px;">
     <a href="register_kennel.html" class="back-btn">Register New Kennel</a>
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 </div>

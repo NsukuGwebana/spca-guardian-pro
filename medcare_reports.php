@@ -1,9 +1,11 @@
+<?php $ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Reports Analysis</title>
+    <title>Medical Reports Analysis | SPCA Guardian Pro</title>
     
     <!-- Load Google Charts Library -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -180,30 +182,22 @@
             font-size: 14px;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Medical Reports Analysis</h1>
     <p style="text-align: center; margin-bottom: 30px;">Analyze appointment trends and treatment statistics</p>
 
     <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
     // Database connection and data fetching
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
     
-    $serverName = DB_HOST;
-    $username   = DB_USER;
-    $password   = DB_PASS;
-    $database   = DB_NAME;
+
     
-    $conn = new mysqli($serverName, $username, $password, $database);
+    $conn = db();
     
-    // Check for connection error
-    if ($conn->connect_error) { 
-        echo "<div class='error'>Database Connection failed: " . $conn->connect_error . "</div>"; 
-        exit; 
-    }
     
     // Initialize data arrays
     $monthlyAppointmentsData = [];
@@ -216,7 +210,8 @@ require_once __DIR__ . '/config.php';
     
     // Get filter values from request
     $viewType = isset($_GET['view']) ? $_GET['view'] : 'monthly';
-    $yearFilter = isset($_GET['year']) ? $_GET['year'] : date('Y');
+    $latestYear = $conn->query("SELECT MAX(YEAR(app_date)) AS y FROM appointments")->fetch_assoc()['y'] ?? null;
+    $yearFilter = isset($_GET['year']) ? $_GET['year'] : ($latestYear ?: date('Y'));
     
     // Query to get appointments by month
     $monthlyAppointmentsQuery = "
@@ -240,7 +235,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No monthly appointment data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in monthly appointments query: " . $conn->error;
+        $errors[] = "Error in monthly appointments query. Please try again.";
     }
     
     // Query to get appointments by quarter
@@ -265,7 +260,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No quarterly appointment data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in quarterly appointments query: " . $conn->error;
+        $errors[] = "Error in quarterly appointments query. Please try again.";
     }
     
     // Query to get treatments by month
@@ -290,7 +285,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No monthly treatment data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in monthly treatments query: " . $conn->error;
+        $errors[] = "Error in monthly treatments query. Please try again.";
     }
     
     // Query to get treatments by quarter
@@ -315,7 +310,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No quarterly treatment data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in quarterly treatments query: " . $conn->error;
+        $errors[] = "Error in quarterly treatments query. Please try again.";
     }
     
     // Query to get appointments by status
@@ -338,7 +333,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No status data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in status query: " . $conn->error;
+        $errors[] = "Error in status query. Please try again.";
     }
     
     // Query to get treatment types data
@@ -362,7 +357,7 @@ require_once __DIR__ . '/config.php';
             $errors[] = "No treatment types data found for " . $yearFilter;
         }
     } else {
-        $errors[] = "Error in treatment types query: " . $conn->error;
+        $errors[] = "Error in treatment types query. Please try again.";
     }
     
     // Get unique years for filter dropdown
@@ -376,8 +371,6 @@ require_once __DIR__ . '/config.php';
     }
     
     // Close the connection
-    $conn->close();
-    
     // Display any errors
     if (!empty($errors)) {
         echo "<div class='info'><strong>Information:</strong><ul>";
@@ -503,9 +496,7 @@ require_once __DIR__ . '/config.php';
     </div>
 
    <div style="display: flex; justify-content: center; gap: 15px; margin-top: 30px;">
-    <a href="admin dashboard.php" class="back-btn" onclick="history.back(); return false;">
-        Back to Dashboard
-    </a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
     <a href="javascript:window.print()" class="back-btn">
          Print
     </a>

@@ -1,4 +1,6 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 // get_available_kennels.php
 header('Content-Type: application/json');
 
@@ -16,11 +18,11 @@ try {
         WHERE status = 'Available'
         AND max_width >= ? 
         AND max_height >= ?
-        AND (species_compatibility = ? OR species_compatibility = 'General')
+        AND (species_allowed = ? OR species_allowed = 'Any')
     ");
 
     if (!$stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed. Please try again.");
     }
 
     $stmt->bind_param("dds", $width, $height, $species);

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Register Kennel</title>
+<title>Register Kennel | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -108,8 +108,10 @@ form textarea {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
 <div class="overlay">
 <div class="container">
     <h2>Register New Kennel</h2>
@@ -158,8 +160,9 @@ form textarea {
         <button type="reset" class="btn reset-btn">Reset Form</button>
     </form>
 
-    <button class="back-btn" onclick="window.location.href='admin dashboard.php'">⬅ Back to Dashboard</button>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </div>
+<script src="csrf.js"></script>
 </body>
 </html>

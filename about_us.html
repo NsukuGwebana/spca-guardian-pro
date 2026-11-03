@@ -651,49 +651,8 @@
     </style>
 </head>
 <body class="about-body">
-    <!-- Navigation Bar -->
-    <nav>
-        <div class="nav-left">
-            <a href="Homepage.html" class="logo-link">
-                <img src="Images/hug.PNG" alt="SPCA Guardian Pro Logo" class="new-logo-image">
-                <div class="logo-text">
-                    <h1>SPCA GUARDIAN PRO</h1>
-                    <p class="slogan">A Home For Every Animal</p>
-                </div>
-            </a>
-        </div>
-
-        <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
-            <i class="fas fa-bars"></i>
-        </button>
-
-        <div class="nav-right">
-            <ul>
-                <li><a href="Homepage.html"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#stats"><i class="fas fa-chart-line"></i> Impact</a></li>
-                <li><a href="about_us.html" style="color: #60a5fa;"><i class="fas fa-info-circle"></i> About us</a></li>
-                <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
-                <li>
-                    <a href="#" class="dropdown-toggle">
-                        <i class="fas fa-hand-holding-heart"></i> Get Involved
-                        <i class="fas fa-chevron-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="adoption_form.php"><i class="fas fa-paw"></i> Adopt a Pet</a></li>
-                        <li><a href="Community.html"><i class="fas fa-hands-helping"></i> Volunteer</a></li>
-                        <li><a href="AddDonations2.html"><i class="fas fa-donate"></i> Donate</a></li>
-                        <li><a href="#events"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                        <li><a href="track_adoption.php"><i class="fas fa-clipboard-list"></i> Track Adoption</a></li>
-                        <li><a href="track_.php"><i class="fas fa-clipboard-check"></i> Track Volunteer</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <a href="Newlogin.html" class="sign-in-link">Sign In</a>
-        
-                </form>
-            </div>
-        </div>
-    </nav>
+<script src="site-nav.js"></script>
+    
 
     <!-- Page Content -->
     <div class="overlay">
@@ -813,58 +772,6 @@
         </div>
     </footer>
 
-    <script>
-        // Mobile menu functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-            const navRight = document.querySelector('.nav-right');
-            
-            mobileMenuBtn.addEventListener('click', function() {
-                navRight.classList.toggle('active');
-                
-                // Change icon based on menu state
-                const icon = this.querySelector('i');
-                if (navRight.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-            
-            // Close dropdowns when clicking elsewhere on mobile
-            document.addEventListener('click', function(event) {
-                if (window.innerWidth <= 992 && 
-                    !event.target.closest('.nav-right') && 
-                    !event.target.closest('.mobile-menu-btn') &&
-                    navRight.classList.contains('active')) {
-                    navRight.classList.remove('active');
-                    mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-                    mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-                }
-            });
-            
-            // Prevent dropdown from closing when clicking inside it
-            document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-                dropdown.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                });
-            });
-            
-            // Search form functionality
-            const searchForm = document.getElementById('search-form');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const searchQuery = document.getElementById('search-input').value;
-                    if (searchQuery.trim() !== '') {
-                        alert('Searching for: ' + searchQuery);
-                        // Implement actual search functionality here
-                    }
-                });
-            }
-        });
-    </script>
+
 </body>
 </html>

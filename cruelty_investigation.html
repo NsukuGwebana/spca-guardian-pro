@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cruelty Investigation</title>
+<title>Cruelty Investigation | SPCA Guardian Pro</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -88,8 +88,10 @@
         font-size: 1.1em;
     }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
 <div class="overlay">
 <div class="container">
     <h2>Cruelty Investigation</h2>
@@ -121,9 +123,10 @@
         <textarea name="notes" id="notes" rows="5" placeholder="Additional details..."></textarea>
 
         <button type="submit" class="btn">Save Investigation</button>
-        <a href="view_reports.php" class="btn back-btn">Back to Reports</a>
+        <a href="view_reports.php" class="back-btn">&larr; Back to reports</a>
     </form>
 </div>
 </div>
+<script src="csrf.js"></script>
 </body>
 </html>

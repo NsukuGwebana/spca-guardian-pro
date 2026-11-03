@@ -1,9 +1,11 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 include("databaseConnection.php");
-session_start();
+if (session_status() === PHP_SESSION_NONE) { if (session_status() === PHP_SESSION_NONE) { session_start(); } }
 
 if(!isset($_SESSION['access']) || $_SESSION['access']!="yes"){
-    header("Location: Newlogin.html"); exit();
+    header("Location: loginFormSysdev"); exit();
 }
 
 // Handle actions BEFORE HTML output
@@ -13,28 +15,27 @@ if(isset($_GET['action']) && isset($_GET['id'])){
 
     switch($_GET['action']){
         case 'delete':
-            $sql="UPDATE animals SET is_deleted=1, deleted_at=NOW() WHERE id=$id";
-            $message=$conn->query($sql) ? "Animal moved to archive successfully." : "Error: ".$conn->error;
+            q("UPDATE animals SET is_deleted=1, deleted_at=NOW() WHERE id = ?", [$id]);
+            $message = "Animal moved to archive.";
+            log_activity('Archived animal', 'Animal #' . $id);
             break;
 
         case 'permanent_delete':
             // First delete related medical records
-            $cleanup_sql = "DELETE FROM medical_care WHERE id=$id";
-            if($conn->query($cleanup_sql)) {
-                $sql = "DELETE FROM animals WHERE id=$id";
-                $message = $conn->query($sql) ? "Animal permanently deleted." : "Error: ".$conn->error;
-            } else {
-                $message = "Error deleting related medical records: ".$conn->error;
-            }
+            q("DELETE FROM animal_kennel WHERE animal_id = ?", [$id]);
+            q("DELETE FROM animals WHERE id = ?", [$id]);
+            $message = "Animal permanently deleted.";
+            log_activity('Deleted animal', 'Animal #' . $id);
             break;
 
         case 'restore':
-            $sql="UPDATE animals SET is_deleted=0, deleted_at=NULL WHERE id=$id";
-            $message=$conn->query($sql) ? "Animal restored successfully." : "Error: ".$conn->error;
+            q("UPDATE animals SET is_deleted=0, deleted_at=NULL WHERE id = ?", [$id]);
+            $message = "Animal restored.";
+            log_activity('Restored animal', 'Animal #' . $id);
             break;
     }
 
-    header("Location: view_registeredAnimals.php?message=".urlencode($message)."&view=".(isset($_GET['view'])?$_GET['view']:'active'));
+    header("Location: view_registeredAnimals.php?message=".urlencode($message)."&view=".(($_GET['view'] ?? '') === 'archive' ? 'archive' : 'active'));
     exit();
 }
 
@@ -45,14 +46,14 @@ $where_clause=$view=='archive' ? "WHERE is_deleted=1" : "WHERE is_deleted=0";
 // Fetch animals
 $sql="SELECT * FROM animals $where_clause ORDER BY created_at DESC";
 $result=$conn->query($sql);
-if($result===FALSE){ die("<p>Unable to retrieve animal data: ".$conn->error."</p>"); }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registered Animals - AnimalGuardian</title>
+<title>Registered Animals | SPCA Guardian Pro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root { --primary-color:#134f5c; --primary-light:#60a5b3; --primary-dark:#0f3f4a; --accent-color:#ff9f43; --success-color:#27ae60; --warning-color:#e67e22; --danger-color:#e74c3c; --light-bg:#f8f9fa; --text-dark:#2c3e50; --text-light:#7f8c8d; --shadow:0 4px 6px rgba(0,0,0,0.1); --transition:all 0.3s ease; }
@@ -92,14 +93,16 @@ table tr:hover{background-color:#e9f7f9; transform:scale(1.01); box-shadow:0 2px
 .action-buttons{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
 .action-container{text-align:center; margin-top:25px;}
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
 <?php if(isset($_GET['message'])){ echo "<div class='message'>".htmlspecialchars($_GET['message'])."</div>"; } ?>
 <div class="header">
     <h2>Registered Animals</h2>
-    <div class="user-info"><i class="fas fa-user-shield"></i> <?php echo $_SESSION['userrole']; ?></div>
+    <div class="user-info"><i class="fas fa-user-shield"></i> <?= e($_SESSION['userrole']) ?></div>
 </div>
 
 <div class="view-toggle">
@@ -135,32 +138,32 @@ table tr:hover{background-color:#e9f7f9; transform:scale(1.01); box-shadow:0 2px
 if($result->num_rows>0){
     while($row=$result->fetch_assoc()){
         echo "<tr>";
-        echo "<td>{$row['id']}</td>";
-        echo "<td>".(!empty($row['animal_picture'])?"<img class='animal-thumb' src='{$row['animal_picture']}' />":"No Image")."</td>";
-        echo "<td>{$row['Aname']}</td>";
-        echo "<td>{$row['Species']}</td>";
-        echo "<td>{$row['Animal_breed']}</td>";
-        echo "<td>{$row['Aage']}</td>";
-        echo "<td>{$row['Color']}</td>";
-        echo "<td>{$row['Aweight']}</td>";
-        echo "<td>{$row['Width']}</td>";
-        echo "<td>{$row['Height']}</td>";
-        echo "<td>{$row['Kennel_status']}</td>";
-        echo "<td><span class='status-badge ".($row['Health_status']=='Healthy'?'status-healthy':'status-unhealthy')."'><i class='fas ".($row['Health_status']=='Healthy'?'fa-heart':'fa-heartbeat')."'></i>{$row['Health_status']}</span></td>";
-        echo "<td><span class='status-badge ".($row['status']=='Available'?'status-available':'status-adopted')."'><i class='fas ".($row['status']=='Available'?'fa-home':'fa-check-circle')."'></i>{$row['status']}</span></td>";
-        echo "<td>{$row['Intake_date']}</td>";
+        echo "<td>" . e($row['id']) . "</td>";
+        echo "<td>".(!empty($row['animal_picture'])?"<img class='animal-thumb' src='".htmlspecialchars($row['animal_picture'])."' alt='' onerror=\"this.onerror=null;this.src='Images/no-photo.svg'\" />":"<img class='animal-thumb' src='Images/no-photo.svg' alt='No photo yet' />")."</td>";
+        echo "<td>" . e($row['Aname']) . "</td>";
+        echo "<td>" . e($row['Species']) . "</td>";
+        echo "<td>" . e($row['Animal_breed']) . "</td>";
+        echo "<td>" . e($row['Aage']) . "</td>";
+        echo "<td>" . e($row['Color']) . "</td>";
+        echo "<td>" . e($row['Aweight']) . "</td>";
+        echo "<td>" . e($row['Width']) . "</td>";
+        echo "<td>" . e($row['Height']) . "</td>";
+        echo "<td>" . e($row['Kennel_status']) . "</td>";
+        echo "<td><span class='status-badge ".($row['Health_status']=='Healthy'?'status-healthy':'status-unhealthy')."'><i class='fas ".($row['Health_status']=='Healthy'?'fa-heart':'fa-heartbeat')."'></i>" . e($row['Health_status']) . "</span></td>";
+        echo "<td><span class='status-badge ".($row['status']=='Available'?'status-available':'status-adopted')."'><i class='fas ".($row['status']=='Available'?'fa-home':'fa-check-circle')."'></i>" . e($row['status']) . "</span></td>";
+        echo "<td>" . e($row['Intake_date']) . "</td>";
 
         echo "<td class='action-buttons'>";
         // Preserve original buttons: View, Edit, PDF
-        echo "<a class='btn' href='view_animalProfile.php?id={$row['id']}'><i class='fas fa-eye'></i> View</a>";
-        echo "<a class='btn' href='edit_animal.php?id={$row['id']}'><i class='fas fa-edit'></i> Edit</a>";
-        echo "<a class='btn' href='generate_pdf.php?id={$row['id']}' target='_blank'><i class='fas fa-file-pdf'></i> PDF</a>";
+        echo "<a class='btn' href='view_animalProfile.php?id=" . e($row['id']) . "'><i class='fas fa-eye'></i> View</a>";
+        echo "<a class='btn' href='edit_animal.php?id=" . e($row['id']) . "'><i class='fas fa-edit'></i> Edit</a>";
+        echo "<a class='btn' href='generate_pdf.php?id=" . e($row['id']) . "' target='_blank'><i class='fas fa-file-pdf'></i> PDF</a>";
 
         if($view=='active'){
-            echo "<a class='btn' href='?action=delete&id={$row['id']}&view={$view}' onclick='return confirm(\"Move to archive?\")'><i class='fas fa-archive'></i> Archive</a>";
+            echo "<a class='btn' href='?action=delete&id=" . e($row['id']) . "&view={$view}' onclick='return confirm(\"Move to archive?\")'><i class='fas fa-archive'></i> Archive</a>";
         } else {
-            echo "<a class='btn' href='?action=restore&id={$row['id']}&view={$view}' onclick='return confirm(\"Restore this animal?\")'><i class='fas fa-undo'></i> Restore</a>";
-            echo "<a class='btn' href='?action=permanent_delete&id={$row['id']}&view={$view}' onclick='return confirm(\"Permanently delete? This cannot be undone.\")'><i class='fas fa-trash'></i> Delete</a>";
+            echo "<a class='btn' href='?action=restore&id=" . e($row['id']) . "&view={$view}' onclick='return confirm(\"Restore this animal?\")'><i class='fas fa-undo'></i> Restore</a>";
+            echo "<a class='btn' href='?action=permanent_delete&id=" . e($row['id']) . "&view={$view}' onclick='return confirm(\"Permanently delete? This cannot be undone.\")'><i class='fas fa-trash'></i> Delete</a>";
         }
         echo "</td>";
 

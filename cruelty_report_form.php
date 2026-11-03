@@ -1,8 +1,9 @@
+<?php require_once __DIR__ . '/bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Report Animal Cruelty</title>
+<title>Report Animal Cruelty | SPCA Guardian Pro</title>
 
 <style>
 body {
@@ -99,22 +100,20 @@ form textarea {
     background: #3d8a95;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<script src="site-nav.js"></script>
 <div class="overlay">
 <div class="container">
-    <h1> Report Animal Cruelty</h1>
+    <h2>Report animal cruelty</h2>
 
     <form action="cruelty_report.php" method="POST">
-        <label for="reporter_name">Name:</label>
-        <input type="text" name="reporter_name" id="reporter_name" required>
+        <p class="form-intro">Tell us what you saw. If an animal is in immediate danger, also call us straight away.</p>
 
-        <label for="contact_info">Contact Info:</label>
-        <input type="text" name="contact_info" id="contact_info" required>
-
-        <label for="animal_type">Animal Type:</label>
+        <label for="animal_type">Which animal? *</label>
         <select name="animal_type" id="animal_type" required>
-            <option value="">-- Select Animal --</option>
+            <option value="">Choose an animal</option>
             <option value="Dog">Dog</option>
             <option value="Cat">Cat</option>
             <option value="Bird">Bird</option>
@@ -122,36 +121,34 @@ form textarea {
             <option value="Other">Other</option>
         </select>
 
-        <label for="cruelty_type">Type of Cruelty:</label>
+        <label for="cruelty_type">What is happening? *</label>
         <select name="cruelty_type" id="cruelty_type" required>
-            <option value="">-- Select Type --</option>
-            <option value="Neglect">Neglect</option>
-            <option value="Physical Abuse">Physical Abuse</option>
-            <option value="Abandonment">Abandonment</option>
-            <option value="Illegal Trade">Illegal Trade</option>
-            <option value="Other">Other</option>
+            <option value="">Choose one</option>
+            <option value="Neglect">Neglect (no food, water or shelter)</option>
+            <option value="Physical Abuse">Physical abuse</option>
+            <option value="Abandonment">Abandoned</option>
+            <option value="Illegal Trade">Illegal selling or trading</option>
+            <option value="Other">Something else</option>
         </select>
 
-        <label for="location">Location of Incident:</label>
-        <input type="text" name="location" id="location" required>
+        <label for="location">Where? *</label>
+        <input type="text" name="location" id="location" placeholder="Street and suburb" required>
 
-        <label for="witnesses">Witnesses (if any):</label>
-        <input type="text" name="witnesses" id="witnesses">
+        <label for="description">What did you see? *</label>
+        <textarea name="description" id="description" rows="4" required></textarea>
 
-        <label for="date">Date of Incident:</label>
-        <input type="date" name="date" id="date" required>
+        <div class="two-col">
+            <div><label for="reporter_name">Your name *</label>
+            <input type="text" name="reporter_name" id="reporter_name" autocomplete="name" required></div>
+            <div><label for="contact_info">Phone or email *</label>
+            <input type="text" name="contact_info" id="contact_info" required></div>
+        </div>
 
-        <!-- Description Field Added Here -->
-        <label for="description">Description of the Incident:</label>
-        <textarea name="description" id="description" rows="5" required placeholder="Please provide a detailed description of the incident."></textarea>
-
-        <button type="submit" class="btn">Submit Report</button>
-        <button type="reset" class="btn reset-btn">Reset Form</button>
+        <div class="btn-container">
+            <button type="submit" class="btn">Send report</button>
+            <a href="Homepage.html" class="back-btn">&larr; Back to home</a>
+        </div>
     </form>
-
-    <!-- Back Button -->
-   
-    <button class="back-btn" onclick="history.back()"> Back</button>
 </div>
 </div>
 </body>

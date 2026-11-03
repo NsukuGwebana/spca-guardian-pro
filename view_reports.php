@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/config.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
 // Database connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = db();
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Run query with join to show status
 $sql = "SELECT cr.id, cr.reporter_name, cr.contact_info, cr.animal_type, cr.cruelty_type, 
@@ -19,7 +18,7 @@ $result = $conn->query($sql);
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Animal Cruelty Reports</title>
+<title>Animal Cruelty Reports | SPCA Guardian Pro</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -96,8 +95,10 @@ td {
     background: #3b82f6;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <h1>Animal Cruelty Reports</h1>
 
@@ -128,7 +129,7 @@ td {
                     <td><?= htmlspecialchars($row['date']) ?></td>
                     <td><?= htmlspecialchars($row['case_status']) ?></td>
                     <td>
-                        <a class="action-btn" href="investigation_form.php?cruelty_id=<?= $row['id'] ?>">Investigate</a>
+                        <a class="action-btn" href="investigation_form.php?cruelty_id=<?= e($row['id']) ?>">Investigate</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>
@@ -138,7 +139,7 @@ td {
         <p style="text-align:center;">No reports found.</p>
     <?php endif; ?>
 
- <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+ <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 </body>
 </html>

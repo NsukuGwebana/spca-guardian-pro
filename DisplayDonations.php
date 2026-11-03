@@ -1,13 +1,12 @@
 <?php
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 require_once("databaseConnection.php");
 
 // establish a connection
-$conn = new mysqli($serverName, $username, $password, $database);
+$conn = db();
 
 // check if connection is successful
-if ($conn->connect_error) {
-    die('<p class="error">Connection to the database failed!</p>');
-}
 
 // query to view the user table
 $sql = "SELECT 
@@ -33,7 +32,7 @@ if ($result === FALSE) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>System Users - AnimalGuardian</title>
+<title>System Users | SPCA Guardian Pro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root {
@@ -154,8 +153,10 @@ table tr:hover{
     margin-top: 20px;
 }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
     <div class="container">
         <div class="header">
@@ -180,12 +181,12 @@ table tr:hover{
         <td><?= ($row['damount'] > 500) ? '🚩' : '' ?>
     </td>
     <td><?= htmlspecialchars($row['F_name'] . ' ' . $row['L_name']) ?></td>
-      <td><?= htmlspecialchars($row['E_address']) ?></td>
-      <td><?= htmlspecialchars($row['Phone_num']) ?></td>
-      <td><?= htmlspecialchars($row['dtype']) ?></td>
+      <td><?= htmlspecialchars($row['E_address'] ?? '') ?></td>
+      <td><?= htmlspecialchars($row['Phone_num'] ?? '') ?></td>
+      <td><?= htmlspecialchars($row['dtype'] ?? '') ?></td>
       <td>R<?= number_format($row['damount'], 2) ?></td>
-      <td><?= htmlspecialchars($row['dlocation']) ?></td>
-      <td><?= htmlspecialchars($row['ddate']) ?></td>
+      <td><?= htmlspecialchars($row['dlocation'] ?? '') ?></td>
+      <td><?= htmlspecialchars($row['ddate'] ?? '') ?></td>
       
     </tr>
   <?php endwhile; 
@@ -194,7 +195,7 @@ table tr:hover{
 
         <!-- Back to Dashboard Button -->
         <div class="back-btn-container">
-            <a href="admin dashboard.php" class="btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
         </div>
     </div>
 </div>

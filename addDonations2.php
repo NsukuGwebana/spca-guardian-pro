@@ -4,14 +4,14 @@ include 'databaseConnection.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // Debugging
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $damount = floatval($_POST['amount']);
-    $dname = $_POST['fname'];
-    $dsurname = $_POST['lname'];
-    $donorphone = !empty($_POST['phone']) ? $_POST['phone'] : null;
-    $donationtype = $_POST['type'];
-    $donoremail = $_POST['email'];
-    $dlocation = $_POST['location'];
-    $date = $_POST['date'];
+    $damount = floatval($_POST['amount'] ?? 0);
+    $dname = trim($_POST['fname'] ?? '');
+    $dsurname = trim($_POST['lname'] ?? '');
+    $donorphone = null; // no longer asked on the short form
+    $donationtype = $_POST['type'] ?? 'one-time';
+    $donoremail = trim($_POST['email'] ?? '');
+    $dlocation = 'Online';
+    $date = date('Y-m-d'); // donations are recorded on the day they're made
 
     // Insert donor
     $sql1 = "INSERT INTO donor(F_name, L_name, E_address, Phone_num) VALUES (?, ?, ?, ?)";
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt1->bind_param("ssss", $dname, $dsurname, $donoremail, $donorphone);
 
     if (!$stmt1->execute()) {
-        die("Unable to add donor information! " . $stmt1->error);
+        die("Unable to add donor information!. Please try again.");
     }
 
     $donid = $conn->insert_id;
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt2->bind_param("idsss", $donid, $damount, $dlocation, $donationtype, $date);
 
     if (!$stmt2->execute()) {
-        die("Unable to add donation information! " . $stmt2->error);
+        die("Unable to add donation information!. Please try again.");
     }
 
     // Redirect with donor name + amount

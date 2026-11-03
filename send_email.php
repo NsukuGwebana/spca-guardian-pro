@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -20,14 +22,14 @@ if (isset($_POST['send'])) {
 
         try {
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
+            $mail->Host       = MAIL_HOST;
             $mail->SMTPAuth   = true;
-            $mail->Username   = SMTP_USER; // Your Gmail
-            $mail->Password   = SMTP_PASS; // Gmail password or App Password
+            $mail->Username   = MAIL_USER; // Your Gmail
+            $mail->Password   = MAIL_PASS; // Gmail password or App Password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port       = MAIL_PORT;
 
-            $mail->setFrom(SMTP_USER, 'Animal Guardian Admin');
+            $mail->setFrom(MAIL_FROM, 'Animal Guardian Admin');
             $mail->addAddress($to);
 
             $mail->isHTML(true);
@@ -50,7 +52,7 @@ if (isset($_POST['send'])) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Send Email</title>
+<title>Send Email | SPCA Guardian Pro</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -116,8 +118,10 @@ if (isset($_POST['send'])) {
     .success { color: green; margin-bottom: 15px; }
     .error { color: red; margin-bottom: 15px; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 <div class="container">
     <h2>Send Email</h2>
@@ -139,7 +143,7 @@ if (isset($_POST['send'])) {
         <textarea name="body" rows="6" required placeholder="Enter your message"></textarea>
 
         <button type="submit" name="send" class="btn">Send Email</button>
-        <a href="admin dashboard.php" class="btn back-btn">Back to Dashboard</a>
+        <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
     </form>
 </div>
 </div>

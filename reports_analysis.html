@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cruelty Reports and Investigations Analysis</title>
+    <title>Cruelty Reports and Investigations Analysis | SPCA Guardian Pro</title>
     
     <!-- Load Google Charts Library -->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -135,8 +135,10 @@
             border-radius: 8px;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<header class="spca-topbar"><a class="spca-brand" href="dashboard.php"><span>SPCA</span>Guardian Pro</a><nav><a href="dashboard.php">&larr; My dashboard</a><a href="logoutForm.html">Log out</a></nav></header>
 <div class="overlay">
     <h1>Cruelty Reports and Investigations Analysis</h1>
     
@@ -185,7 +187,7 @@
         <div id="case_status_chart" class="chart"></div>
     </div>
 
-    <a href="admin dashboard.php" class="back-btn">Back to Dashboard</a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 <script type="text/javascript">
@@ -368,5 +370,6 @@
         return ticks;
     }
 </script>
+<script src="csrf.js"></script>
 </body>
 </html>

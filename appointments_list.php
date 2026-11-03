@@ -1,4 +1,6 @@
 <?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
 require 'databaseConnection.php';
 $message = "";
 
@@ -28,7 +30,7 @@ $appointments = $result->fetch_all(MYSQLI_ASSOC);
 <!DOCTYPE html>
 <html>
 <head>
-<title>Appointments List</title>
+<title>Appointments List | SPCA Guardian Pro</title>
 <style>
 body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; color:#333; }
 table { width:100%; border-collapse: collapse; margin-top:20px; }
@@ -41,8 +43,10 @@ button { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; }
 .missed:hover { background:#d32f2f; }
 .message { font-weight:bold; margin-bottom:10px; color:#2E7D32; }
 </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <h2>Appointments</h2>
 <?php if($message) echo "<p class='message'>$message</p>"; ?>
 
@@ -67,8 +71,8 @@ button { padding:6px 12px; border:none; border-radius:6px; cursor:pointer; }
 <td><?php echo htmlspecialchars($ap['status']); ?></td>
 <td>
 <?php if($ap['status'] === 'Scheduled'): ?>
-    <a href="?action=complete&id=<?php echo $ap['id']; ?>"><button class="complete">Mark Completed</button></a>
-    <a href="?action=missed&id=<?php echo $ap['id']; ?>"><button class="missed">Mark Missed</button></a>
+    <a href="?action=complete&id=<?= e($ap['id']) ?>"><button class="complete">Mark Completed</button></a>
+    <a href="?action=missed&id=<?= e($ap['id']) ?>"><button class="missed">Mark Missed</button></a>
 <?php else: ?>N/A<?php endif; ?>
 </td>
 </tr>

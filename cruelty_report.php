@@ -1,20 +1,9 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 // Show ALL errors
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// Database connection
-$serverName = DB_HOST;
-$username   = DB_USER;
-$password   = DB_PASS;
-$database   = DB_NAME;
+$conn = db();
 
-$conn = new mysqli($serverName, $username, $password, $database);
-
-if ($conn->connect_error) {
-    die("❌ Database Connection failed: " . $conn->connect_error);
-}
 
 // Only process if form submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -27,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $cruelty_type  = $_POST['cruelty_type'] ?? '';
     $location      = $_POST['location'] ?? '';
     $witnesses     = $_POST['witnesses'] ?? '';
-    $date          = $_POST['date'] ?? '';
+    $date          = date('Y-m-d'); // reports are dated the day they're sent
     $description   = $_POST['description'] ?? '';
 
     // Check if required fields are empty
@@ -43,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        die("❌ SQL Prepare failed: " . $conn->error);
+        die("❌ SQL Prepare failed. Please try again.");
     }
 
     $stmt->bind_param("ssssssss", 
@@ -58,10 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($stmt->execute()) {
+        log_activity('New cruelty report', 'Report #' . $stmt->insert_id);
         echo "<h2 style='color:green; text-align:center;'>✅ Report submitted successfully!</h2>";
-        echo "<p style='text-align:center;'><a href='Homepage.html'>Back to Home</a></p>";
+        echo "<p style='text-align:center;'><a href='Homepage.html' class='back-btn'>&larr; Back to home</a></p>";
     } else {
-        echo "<h2 style='color:red; text-align:center;'>❌ Error submitting report: " . $stmt->error . "</h2>";
+        echo "<p class='error'>Sorry, your report couldn't be sent. Please try again or call us.</p>";
     }
 
     $stmt->close();
@@ -72,6 +62,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 // Close connection
-$conn->close();
 ?>
 

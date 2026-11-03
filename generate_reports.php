@@ -1,16 +1,10 @@
 <?php
-require_once __DIR__ . '/config.php';
-// Database connection
-$serverName = DB_HOST;
-$username = DB_USER; 
-$password = DB_PASS;
-$database = DB_NAME;
-$conn = new mysqli($serverName, $username, $password, $database);
+$ALLOWED_ROLES = ['Administrator']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in
+require_once __DIR__ . '/bootstrap.php';
+$conn = db();
 
 // Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Fetch Data for Cruelty Reports by Animal Type
 $animalTypeQuery = "SELECT animal_type, COUNT(*) AS count FROM cruelty_report GROUP BY animal_type";
@@ -39,9 +33,6 @@ $caseStatusData = [];
 while ($row = $caseStatusResult->fetch_assoc()) {
     $caseStatusData[] = [$row['status'], (int)$row['count']];
 }
-
-$conn->close();
-
 // Encode the data in JSON format for use in Google Charts
 $animalDataJson = json_encode($animalData);
 $crueltyDataJson = json_encode($crueltyData);
@@ -52,7 +43,7 @@ $caseStatusDataJson = json_encode($caseStatusData);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Cruelty Reports and Investigations Analysis</title>
+    <title>Cruelty Reports and Investigations Analysis | SPCA Guardian Pro</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {packages: ['corechart', 'bar']});
@@ -93,8 +84,10 @@ $caseStatusDataJson = json_encode($caseStatusData);
             caseStatusChart.draw(caseStatusData, caseStatusOptions);
         }
     </script>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
     <h1>Cruelty Reports and Investigations Analysis</h1>
     <div id="animal_chart" style="width: 900px; height: 500px;"></div>
     <div id="cruelty_chart" style="width: 900px; height: 500px;"></div>

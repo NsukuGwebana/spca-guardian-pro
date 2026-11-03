@@ -1,4 +1,6 @@
-<?php   
+<?php
+$ALLOWED_ROLES = ['Administrator', 'Vet']; // who may open this page
+require_once __DIR__ . '/Session_handler.php'; // staff only: redirects to login if not signed in   
 require_once 'databaseConnection.php';
 
 // ✅ Handle cancellation request before fetching data
@@ -10,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_id'])) {
     $stmt->close();
 
     // Redirect to avoid resubmission
-    header("Location: fetchapp.php?filter=" . ($_GET['filter'] ?? 'all') . "&cancelled=1");
+    header("Location: appointments_list.php?filter=" . ($_GET['filter'] ?? 'all') . "&cancelled=1");
     exit();
 }
 
@@ -58,8 +60,9 @@ if ($filter == 'today') {
 }
 
 if (!empty($search)) {
-    $search = $conn->real_escape_string($search);
-    $where[] = "(a.Aname LIKE '%$search%' OR ap.vet_id LIKE '%$search%' OR ap.Reason LIKE '%$search%')";
+    $where[] = "(a.Aname LIKE ? OR ap.vet_id LIKE ? OR ap.Reason LIKE ?)";
+    $like = '%' . $search . '%';
+    $params = [$like, $like, $like];
 }
 
 if (!empty($where)) {
@@ -67,10 +70,7 @@ if (!empty($where)) {
 }
 
 $query .= " ORDER BY ap.app_date DESC";
-$result = $conn->query($query);
-if (!$result) {
-    die("Query failed: " . $conn->error . " | Query: " . $query);
-}
+$result = q($query, $params ?? []); // prepared statement
 
 // ✅ Group appointments by animal_id
 $appointmentsByAnimal = [];
@@ -99,7 +99,7 @@ while ($row = $result->fetch_assoc()) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Appointments Information</title>
+    <title>Appointments Information | SPCA Guardian Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -266,8 +266,10 @@ while ($row = $result->fetch_assoc()) {
             margin: 15px 0;
         }
     </style>
+<link rel="stylesheet" href="spca-theme.css">
 </head>
-<body>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
 <div class="overlay">
 
 <h1>Animal Appointments</h1>
@@ -288,9 +290,9 @@ while ($row = $result->fetch_assoc()) {
 
 <div class="search">
     <form method="GET">
-        <input type="text" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+        <input type="text" name="search" placeholder="Search..." value="<?= htmlspecialchars($search ?? '') ?>">
         <?php if (!empty($filter) && $filter !== 'all'): ?>
-            <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
+            <input type="hidden" name="filter" value="<?= htmlspecialchars($filter ?? '') ?>">
         <?php endif; ?>
         <button type="submit">Search</button>
     </form>
@@ -300,38 +302,38 @@ while ($row = $result->fetch_assoc()) {
     <?php if (!empty($appointmentsByAnimal)): ?>
         <?php foreach ($appointmentsByAnimal as $animal): ?>
             <div class="appointment">
-                <img src="<?= htmlspecialchars($animal['animal_picture']) ?>" alt="<?= htmlspecialchars($animal['animal_name']) ?>" class="animal-image">
+                <img src="<?= htmlspecialchars($animal['animal_picture'] ?? '') ?>" alt="<?= htmlspecialchars($animal['animal_name'] ?? '') ?>" class="animal-image">
 
                 <div class="appointment-details">
                     <div class="info"><i class="fas fa-paw"></i>
-                        <p><strong>Animal:</strong> <?= htmlspecialchars($animal['animal_name']) ?> (ID: <?= $animal['animal_id'] ?>)</p>
+                        <p><strong>Animal:</strong> <?= htmlspecialchars($animal['animal_name'] ?? '') ?> (ID: <?= e($animal['animal_id']) ?>)</p>
                     </div>
 
                     <?php foreach ($animal['appointments'] as $ap): ?>
                         <hr>
                         <div class="info"><i class="fas fa-id-card"></i>
-                            <p><strong>Appointment ID:</strong> <?= $ap['app_id'] ?></p>
+                            <p><strong>Appointment ID:</strong> <?= e($ap['app_id']) ?></p>
                         </div>
                         <div class="info"><i class="fas fa-notes-medical"></i>
-                            <p><strong>Reason:</strong> <?= htmlspecialchars($ap['reason']) ?></p>
+                            <p><strong>Reason:</strong> <?= htmlspecialchars($ap['reason'] ?? '') ?></p>
                         </div>
                         <div class="info"><i class="fas fa-calendar-day"></i>
-                            <p><strong>Date:</strong> <?= $ap['app_date'] ?></p>
+                            <p><strong>Date:</strong> <?= e($ap['app_date']) ?></p>
                         </div>
                         <div class="info"><i class="fas fa-user-md"></i>
-                            <p><strong>Vet ID:</strong> <?= $ap['vet_id'] ?></p>
+                            <p><strong>Vet ID:</strong> <?= e($ap['vet_id']) ?></p>
                         </div>
                         <div class="info"><i class="fas fa-circle"></i>
                             <p><strong>Status:</strong> 
-                                <span class="status <?= $ap['app_status'] ?>">
-                                    <?= htmlspecialchars($ap['app_status']) ?>
+                                <span class="status <?= e($ap['app_status']) ?>">
+                                    <?= htmlspecialchars($ap['app_status'] ?? '') ?>
                                 </span>
                             </p>
                         </div>
 
                         <?php if ($ap['app_status'] === 'Scheduled'): ?>
                             <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
-                                <input type="hidden" name="cancel_id" value="<?= $ap['app_id'] ?>">
+                                <input type="hidden" name="cancel_id" value="<?= e($ap['app_id']) ?>">
                                 <button type="submit" class="cancel-btn">Cancel Appointment</button>
                             </form>
                         <?php endif; ?>
@@ -346,9 +348,7 @@ while ($row = $result->fetch_assoc()) {
 
 <!-- ✅ Back button at the bottom left -->
 <div class="bottom-bar">
-    <a href="vetDashboard.php" class="btn back-btn">
-        <i></i> Back to Dashboard
-    </a>
+    <a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a>
 </div>
 
 </div> <!-- overlay -->

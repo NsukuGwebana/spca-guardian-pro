@@ -1,131 +1,67 @@
-
 <?php
-include "databaseConnection.php";
+// Events and who has signed up. Administrators see volunteers' names; volunteers see the list and spots left.
+$ALLOWED_ROLES = ['Administrator', 'Volunteer'];
+require_once __DIR__ . '/Session_handler.php';
+require_once __DIR__ . '/bootstrap.php';
 
-$sql = "SELECT * FROM events ORDER BY event_date ASC";
-$result = $conn->query($sql);
+$isAdmin = ($_SESSION['userrole'] ?? '') === 'Administrator';
+$when = ($_GET['when'] ?? '') === 'past' ? 'past' : 'upcoming';
+
+$events = q("SELECT e.*, (SELECT COUNT(*) FROM event_signups s WHERE s.event_id = e.id) AS taken
+             FROM events e WHERE " . ($when === 'past' ? 'e.event_date < CURDATE() ORDER BY e.event_date DESC' : 'e.event_date >= CURDATE() ORDER BY e.event_date, e.event_time')
+           )->fetch_all(MYSQLI_ASSOC);
+
+$names = [];
+if ($isAdmin && $events) {
+    $r = q("SELECT s.event_id, u.firstname, u.surname, u.phonenumber, u.email
+            FROM event_signups s JOIN users u ON u.idnumber = s.volunteer_id
+            ORDER BY s.signup_date");
+    while ($x = $r->fetch_assoc()) $names[$x['event_id']][] = $x;
+}
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>View Events</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: url('https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-            background-size: cover;
-            margin: 0;
-            padding: 0;
-            color: #fff;
-        }
-
-        .overlay {
-            background: rgba(19, 79, 92, 0.85);
-            min-height: 100vh;
-            padding: 30px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #e0f7fa;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #60a5fa;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #134f5c;
-            color: #fff;
-        }
-
-        td {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .action-btn {
-            display: inline-block;
-            padding: 6px 12px;
-            margin: 2px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            color: #fff;
-            cursor: pointer;
-            background-color: #60a5fa;
-        }
-
-        .action-btn:hover {
-            background-color: #3b82f6;
-        }
-
-        .back-btn {
-            display: block;
-            width: fit-content;
-            background: #60a5fa;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-weight: bold;
-            margin: 20px auto;
-            text-align: center;
-            text-decoration: none;
-        }
-
-        .back-btn:hover {
-            background: #3b82f6;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Events | SPCA Guardian Pro</title>
+<link rel="stylesheet" href="spca-theme.css">
+<style>
+  .ev { background: var(--spca-card); border: 1px solid var(--spca-line); border-radius: var(--spca-radius); padding: 16px 18px; margin-bottom: 12px; color: var(--spca-ink); }
+  .ev h3 { margin: 0; font-size: 1.05rem; }
+  .ev .meta { color: var(--spca-muted); font-size: .88rem; margin: 2px 0 6px; }
+  .ev details { margin-top: 8px; font-size: .9rem; }
+  .ev summary { cursor: pointer; color: var(--spca-teal); font-weight: 600; }
+  .ev ul { margin: 8px 0 0; padding-left: 20px; }
+  .full { color: var(--spca-bad); font-weight: 600; }
+</style>
 </head>
-<body>
-    <div class="overlay">
-        <h1>All Events</h1>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Event Name</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Location</th>
-                <th>Description</th>
-                <th>Max Volunteers</th>
-            </tr>
-            <?php while($row = $result->fetch_assoc()): ?>
-            <tr>
-                <td><?= $row['id'] ?></td>
-                <td><?= $row['event_name'] ?></td>
-                <td><?= $row['event_date'] ?></td>
-                <td><?= $row['event_time'] ?></td>
-                <td><?= $row['location'] ?></td>
-                <td><?= $row['description'] ?></td>
-                <td><?= $row['max_volunteers'] ?></td>
-            </tr>
-            <?php endwhile; ?>
-        </table>
-
-       <button class="back-btn" onclick="history.back()">Back</button>
-    </div>
+<body class="spca">
+<?php include __DIR__ . '/partials/topbar.php'; ?>
+<main class="page-wrap">
+  <div class="page-head">
+    <div><h1>Events</h1><p><?= $isAdmin ? 'Volunteers sign up from their dashboard. Open an event to see who is coming.' : 'Sign up for events from your dashboard.' ?></p></div>
+    <?php if ($isAdmin): ?><a class="tool-btn" href="Event.html">+ Create event</a><?php else: ?><a class="tool-btn" href="volunteerDashboard.php">Go to my dashboard</a><?php endif; ?>
+  </div>
+  <nav class="tabs">
+    <a class="<?= $when === 'upcoming' ? 'on' : '' ?>" href="?when=upcoming">Upcoming</a>
+    <a class="<?= $when === 'past' ? 'on' : '' ?>" href="?when=past">Past</a>
+  </nav>
+  <?php if (!$events): ?><p class="kpi">No <?= $when ?> events.</p><?php endif; ?>
+  <?php foreach ($events as $ev): $left = (int)$ev['max_volunteers'] - (int)$ev['taken']; ?>
+    <article class="ev">
+      <h3><?= e($ev['event_name']) ?></h3>
+      <div class="meta"><?= e(date('l j F Y', strtotime($ev['event_date']))) ?> · <?= e(substr($ev['event_time'], 0, 5)) ?> · <?= e($ev['location']) ?></div>
+      <?php if ($ev['description']): ?><div><?= e($ev['description']) ?></div><?php endif; ?>
+      <div class="meta" style="margin-top:6px"><?= (int)$ev['taken'] ?> of <?= (int)$ev['max_volunteers'] ?> volunteers signed up<?= $left <= 0 ? ' · <span class="full">Full</span>' : '' ?></div>
+      <?php if ($isAdmin && !empty($names[$ev['id']])): ?>
+        <details><summary>Who's coming (<?= count($names[$ev['id']]) ?>)</summary>
+          <ul><?php foreach ($names[$ev['id']] as $p): ?><li><?= e($p['firstname'] . ' ' . $p['surname']) ?> · <?= e($p['phonenumber']) ?><?= $p['email'] ? ' · ' . e($p['email']) : '' ?></li><?php endforeach; ?></ul>
+        </details>
+      <?php endif; ?>
+    </article>
+  <?php endforeach; ?>
+  <div class="back-row"><a href="dashboard.php" class="back-btn">&larr; Back to dashboard</a></div>
+</main>
 </body>
 </html>
-
-<?php $conn->close(); ?>
-
-
-
-
-
-
-
-
-
-
